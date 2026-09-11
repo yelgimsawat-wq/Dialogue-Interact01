@@ -9,14 +9,22 @@ public enum InteractionType
 
 public partial class PlayerInteraction : MonoBehaviour
 {
-    [Header("Interaction Settings")]
-    [SerializeField] private InteractionType InteractionType;
-    [SerializeField] private LayerMask LayerMask;
-    [SerializeField] private float Range = 3f;
-    [SerializeField] private float SphereCastRadius = 0.5f;
-    [SerializeField] private TMP_Text InteractionText;
-    [SerializeField] private GameObject player;
-    [SerializeField] private Camera mainCamera;
+    
+    [SerializeField]
+    private InteractionType InteractionType;
+    [SerializeField] [Tooltip("กำหนด Layer ของวัตถุที่สามารถตรวจจับได้")]
+    private LayerMask LayerMask;
+    [SerializeField] [Tooltip("นำ TextMeshProUGUI มาใส่")]
+    private TMP_Text InteractionText;
+    [SerializeField] [Tooltip("นำตัว player มาใส่")]
+    private GameObject player;
+    [SerializeField] [Tooltip("นำกล้องหลักของ player มาใส่")]
+    private Camera mainCamera;
+    [SerializeField] [Range(0.1f, 10f)] [Tooltip("กำหนดระยะทางของการตรวจจับวัตถุ")]
+    private float Range = 3f;
+    [SerializeField] [Range(0.1f, 5f)] [Tooltip("กำหนดรัสมีของการตรวจจับวัตถุ")]
+    private float SphereCastRadius = 0.5f;
+    
 
     private void Start()
     {
