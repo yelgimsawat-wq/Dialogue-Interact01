@@ -9,19 +9,19 @@ public enum InteractionType
 
 public partial class PlayerInteraction : MonoBehaviour
 {
+    [Header("Interaction Settings")]
+    [SerializeField] private InteractionType InteractionType;
+    [SerializeField] private LayerMask LayerMask;
     [SerializeField] private float Range = 3f;
     [SerializeField] private float SphereCastRadius = 0.5f;
-    [SerializeField] private LayerMask LayerMask;
     [SerializeField] private TMP_Text InteractionText;
-    [SerializeField] private InteractionType InteractionType;
+    [SerializeField] private GameObject player;
+    [SerializeField] private Camera mainCamera;
 
-    private Camera mainCamera;
-    private GameObject player;
-    
     private void Start()
     {
         mainCamera = Camera.main;
-        player = GameObject.FindGameObjectWithTag("Player");
+        player = GameObject.FindGameObjectWithTag("Player");;
     }
 
     private void Update()
@@ -43,5 +43,3 @@ public partial class PlayerInteraction : MonoBehaviour
     }
 
 }
-
-
