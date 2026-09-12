@@ -25,7 +25,7 @@ public partial class PlayerInteraction : MonoBehaviour
     [SerializeField] [Range(0.1f, 5f)] [Tooltip("กำหนดรัสมีของการตรวจจับวัตถุ")]
     private float SphereCastRadius = 0.5f;
     
-
+    
     private void Start()
     {
         mainCamera = Camera.main;
