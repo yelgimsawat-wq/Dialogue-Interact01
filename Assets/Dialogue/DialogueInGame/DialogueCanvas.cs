@@ -16,12 +16,25 @@ public class DialogueCanvas : MonoBehaviour
 
     public void ShowDialogue(DialogueContainer container)
     {
-        if (container == null) return;
+       if (dialoguePanel == null) Debug.LogError("ลืมใส่ dialoguePanel ");
+        if (dialogueText == null) Debug.LogError("ลืมใส่ dialogueText ");
+
+        if (container == null)
+        {
+            Debug.LogError("ข้อมูล container ป็น Null!");
+            return;
+        }
+        Debug.Log($"ได้รับไฟล์ชื่อ: {container.name}");
+
         
         _currentDialogue = container;
         DialogLine startLine = container.GetStartLine();
-        if (startLine == null) return;
-
+        if (startLine == null) 
+        {
+            Debug.LogError("หาจุดเริ่มต้นไม่เจอ");
+            return;
+        }
+        Debug.Log($"ชื่อโหนดเริ่มต้น: {startLine.DialogueName}");
         dialoguePanel.SetActive(true);
         DisplayLine(startLine);
     }
