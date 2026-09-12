@@ -10,14 +10,27 @@ public class DialogueCanvas : MonoBehaviour
     [SerializeField] private Button choiceButtonPrefab;
     [SerializeField] private Transform choiceButtonContainer;
 
+    [SerializeField] private PlayerInteraction playerInteraction;
+
     private DialogueContainer _currentDialogue;
     private DialogLine _currentLine;
     private Coroutine _autoAdvanceCoroutine;
 
+    public void Start()
+    {
+        if (playerInteraction == null)
+        {
+            Debug.LogError("ไม่พบ PlayerInteraction ในฉาก", this);
+            return;
+        }
+        Debug.Log("ใช้งาน" + playerInteraction.CurrentInteractionType);
+    }
+
     public void ShowDialogue(DialogueContainer container)
     {
-       if (dialoguePanel == null) Debug.LogError("ลืมใส่ dialoguePanel ");
+        if (dialoguePanel == null) Debug.LogError("ลืมใส่ dialoguePanel ");
         if (dialogueText == null) Debug.LogError("ลืมใส่ dialogueText ");
+
 
         if (container == null)
         {
@@ -36,6 +49,16 @@ public class DialogueCanvas : MonoBehaviour
         }
         Debug.Log($"ชื่อโหนดเริ่มต้น: {startLine.DialogueName}");
         dialoguePanel.SetActive(true);
+
+        if (playerInteraction.CurrentInteractionType == InteractionType.FirstPerson)
+        {
+            Cursor.lockState = CursorLockMode.None;
+        }
+        else if (playerInteraction.CurrentInteractionType == InteractionType.ThirdPerson)
+        {
+            Cursor.lockState = CursorLockMode.None;
+        }
+
         DisplayLine(startLine);
     }
 
@@ -47,10 +70,21 @@ public class DialogueCanvas : MonoBehaviour
         
         _currentDialogue = null;
         _currentLine = null;
+
+        if (playerInteraction.CurrentInteractionType == InteractionType.FirstPerson)
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+        }
+        else if (playerInteraction.CurrentInteractionType == InteractionType.ThirdPerson)
+        {
+            Cursor.lockState = CursorLockMode.None;
+        }
+        
     }
 
     private void DisplayLine(DialogLine line)
     {
+        Debug.Log($"แสดงข้อความ: {line.Text}");
         _currentLine = line;
         dialogueText.text = line.Text;
 
@@ -115,7 +149,17 @@ public class DialogueCanvas : MonoBehaviour
 
     private void OnChoiceSelected(int choiceIndex)
     {
-        if (_currentLine == null || _currentDialogue == null) return;
+        // if (_currentLine == null || _currentDialogue == null) return;
+        if (_currentLine == null)
+        {
+            Debug.LogError("ไม่มีบรรทัดปัจจุบัน");
+            return;
+        }
+        if (_currentDialogue == null)
+        {
+            Debug.LogError("ไม่มีข้อมูลบทสนทนาปัจจุบัน");
+            return;
+        }
 
         DialogLine.DialogChoice selectedChoice = _currentLine.Choices[choiceIndex];
 

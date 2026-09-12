@@ -24,6 +24,7 @@ public partial class PlayerInteraction : MonoBehaviour
     private float Range = 3f;
     [SerializeField] [Range(0.1f, 5f)] [Tooltip("กำหนดรัสมีของการตรวจจับวัตถุ")]
     private float SphereCastRadius = 0.5f;
+    public InteractionType CurrentInteractionType => InteractionType;
     
     
     private void Start()
@@ -31,6 +32,8 @@ public partial class PlayerInteraction : MonoBehaviour
         mainCamera = Camera.main;
         player = GameObject.FindGameObjectWithTag("Player");;
     }
+
+    
 
     private void Update()
     {
