@@ -1,12 +1,17 @@
 using UnityEngine;
 
-public class DialogueInteractable : MonoBehaviour,IInteractable
+public class DialogueInteractable : MonoBehaviour, IInteractable
 {
-    [SerializeField] private DialogueContainer Dialogue;
+    [SerializeField] private DialogueContainer Dialogue; 
 
     public void Interact()
     {
-        Debug.Log("ใช้งานได้แล้วเย้");
+        DialogueCanvas canvas = FindObjectOfType<DialogueCanvas>();
+        
+        if (canvas != null)
+        {
+            canvas.ShowDialogue(Dialogue);
+        }
     }
 
     public string InteractionText => "Press [E] to talk";
