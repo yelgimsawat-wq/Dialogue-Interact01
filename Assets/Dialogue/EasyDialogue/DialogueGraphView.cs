@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine.UIElements;
 using UnityEditor;
-using DS.Elements;
+using DS.Elementions;
 
 namespace Unity.EasyDialogue
 {
