@@ -2,7 +2,7 @@ using UnityEngine;
 
 public partial class PlayerInteraction
 {
-    private void FirstpersonHandleRaycasting()
+    partial void FirstpersonHandleRaycasting()
     {
         RaycastHit hit;
         if (!Physics.Raycast(mainCamera.transform.position, mainCamera.transform.forward, out hit, Range, LayerMask))

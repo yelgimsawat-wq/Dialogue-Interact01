@@ -2,7 +2,12 @@ using UnityEngine;
 
 public partial class InteractableObject
 {
-    private void DialogueUpdate()
+    [SerializeField]
+    private DialogueCanvas dialogueCanvas;
+    [SerializeField]
+    private DialogueContainer dialogueContainer;
+
+    partial void DialogueUpdate()
     {
         if (dialogueCanvas == null || dialogueContainer == null)
         {

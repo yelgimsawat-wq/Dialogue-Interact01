@@ -21,17 +21,21 @@ namespace DS.Elementions
             Text = "Dialogue Text";
 
             SetPosition(new Rect(position, Vector2.zero));
+
+            mainContainer.AddToClassList("ds-node__main-container");
+            extensionContainer.AddToClassList("ds-node__extension-container");
         }
 
         public virtual void Draw()
         {
             VisualElement nameContainer = new VisualElement();
-            nameContainer.style.flexDirection = FlexDirection.Row;
-            nameContainer.style.alignItems = Align.Center;
-            nameContainer.style.paddingLeft = 5;
-            nameContainer.style.paddingRight = 5;
-            nameContainer.style.paddingTop = 5;
-            nameContainer.style.paddingBottom = 5;
+            nameContainer.AddToClassList("ds-node__name-container");
+            // nameContainer.style.flexDirection = FlexDirection.Row;
+            // nameContainer.style.alignItems = Align.Center;
+            // nameContainer.style.paddingLeft = 5;
+            // nameContainer.style.paddingRight = 5;
+            // nameContainer.style.paddingTop = 5;
+            // nameContainer.style.paddingBottom = 5;
 
             Label nameLabel = new Label("DialogueName:");
             
@@ -39,22 +43,30 @@ namespace DS.Elementions
             {
                 value = DialogueName,
             };
-            dialogueNameTextField.style.flexGrow = 1;
+
+            dialogueNameTextField.AddToClassList("ds-node__textfield");
+            dialogueNameTextField.AddToClassList("ds-node__textname-textfield");
+            dialogueNameTextField.AddToClassList("ds-node__textfield_hidden");
+
+            // dialogueNameTextField.style.flexGrow = 1;
+            dialogueNameTextField.AddToClassList("ds-node__name-field");
             dialogueNameTextField.RegisterValueChangedCallback(evt => DialogueName = evt.newValue);
 
-            nameContainer.Add(nameLabel);
             nameContainer.Add(dialogueNameTextField);
             titleContainer.Add(nameContainer);
 
-            InputPort = InstantiatePort(Orientation.Horizontal, Direction.Input, Port.Capacity.Multi, typeof(bool));
-            InputPort.portName = "Dialogue Connection (input)";
+            Port InputPort = InstantiatePort(Orientation.Horizontal, Direction.Input, Port.Capacity.Multi, typeof(bool));
+            InputPort.portName = "Dialogue Connection";
             inputContainer.Add(InputPort);
 
             VisualElement customContainer = new VisualElement();
-            customContainer.style.paddingLeft = 10;
-            customContainer.style.paddingRight = 10;
-            customContainer.style.paddingTop = 5;
-            customContainer.style.paddingBottom = 5;
+
+            customContainer.AddToClassList("ds-node__custom-data-container");
+
+            // customContainer.style.paddingLeft = 10;
+            // customContainer.style.paddingRight = 10;
+            // customContainer.style.paddingTop = 5;
+            // customContainer.style.paddingBottom = 5;
 
             Foldout textFoldout = new Foldout()
             {
@@ -67,9 +79,13 @@ namespace DS.Elementions
                 value = Text,
                 multiline = true
             };
-            textTextField.style.height = 60;
+
+            // textTextField.style.height = 60;
             textTextField.RegisterValueChangedCallback(evt => { Text = evt.newValue; });
             
+            textTextField.AddToClassList("ds-node__textfield");
+            textTextField.AddToClassList("ds-node__quote-textfield");
+
             textFoldout.Add(textTextField);
             customContainer.Add(textFoldout);
             extensionContainer.Add(customContainer);

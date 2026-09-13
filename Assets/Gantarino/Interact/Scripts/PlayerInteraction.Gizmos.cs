@@ -2,7 +2,7 @@ using UnityEngine;
 
 public partial class PlayerInteraction
 {
-    private void OnDrawGizmosSelected()
+    partial void OnDrawGizmosSelected()
     {
         if (InteractionType == InteractionType.FirstPerson)
         {

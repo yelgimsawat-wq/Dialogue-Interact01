@@ -5,12 +5,16 @@ using TMPro;
 
 public class DialogueCanvas : MonoBehaviour
 {
-    [SerializeField] private GameObject dialoguePanel;
-    [SerializeField] private TMP_Text dialogueText;
-    [SerializeField] private Button choiceButtonPrefab;
-    [SerializeField] private Transform choiceButtonContainer;
-
-    [SerializeField] private PlayerInteraction playerInteraction;
+    [SerializeField] 
+    private GameObject dialoguePanel;
+    [SerializeField] 
+    private TMP_Text dialogueText;
+    [SerializeField] 
+    private Button choiceButtonPrefab;
+    [SerializeField] 
+    private Transform choiceButtonContainer;
+    [SerializeField]
+    private PlayerInteraction playerInteraction;
 
     private DialogueContainer _currentDialogue;
     private DialogLine _currentLine;
@@ -18,6 +22,8 @@ public class DialogueCanvas : MonoBehaviour
 
     public void Start()
     {
+
+
         if (playerInteraction == null)
         {
             Debug.LogError("ไม่พบ PlayerInteraction ในฉาก", this);

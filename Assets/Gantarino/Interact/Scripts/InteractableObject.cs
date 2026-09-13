@@ -3,6 +3,7 @@ using UnityEngine;
 public enum InteractableType
 {
     Dialogue,
+    Light,
 }
 
 public partial class InteractableObject : MonoBehaviour, IInteractable
@@ -10,11 +11,9 @@ public partial class InteractableObject : MonoBehaviour, IInteractable
     
     [SerializeField] 
     private InteractableType InteractableType;
-    [SerializeField]
-    private DialogueCanvas dialogueCanvas;
-    [SerializeField]
-    private DialogueContainer dialogueContainer;
+    
     private string InteractText => "Press E to interact with " + gameObject.name + ".";
+    public string InteractionText { get { return InteractText; } }
 
     public void Interact()
     {
@@ -23,8 +22,12 @@ public partial class InteractableObject : MonoBehaviour, IInteractable
             case InteractableType.Dialogue:
                 DialogueUpdate();
                 break;
+            case InteractableType.Light:
+                LightUpdate();
+                break;
         }
     }
 
-    public string InteractionText { get { return InteractText; } }
+    partial void LightUpdate();
+    partial void DialogueUpdate();
 }

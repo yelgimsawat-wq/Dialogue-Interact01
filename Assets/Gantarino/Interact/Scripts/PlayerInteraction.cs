@@ -22,8 +22,7 @@ public partial class PlayerInteraction : MonoBehaviour
     private Camera mainCamera;
     [SerializeField] [Range(0.1f, 10f)] [Tooltip("กำหนดระยะทางของการตรวจจับวัตถุ")]
     private float Range = 3f;
-    [SerializeField] [Range(0.1f, 5f)] [Tooltip("กำหนดรัสมีของการตรวจจับวัตถุ")]
-    private float SphereCastRadius = 0.5f;
+    
     public InteractionType CurrentInteractionType => InteractionType;
     
     
@@ -52,5 +51,9 @@ public partial class PlayerInteraction : MonoBehaviour
                 break;
         }
     }
+
+    partial void FirstpersonHandleRaycasting();
+    partial void ThirdpersonHandleRaycasting();
+    partial void OnDrawGizmosSelected();
 
 }

@@ -4,9 +4,12 @@ using UnityEditor.Experimental.GraphView;
 using UnityEngine.UIElements;
 using UnityEditor;
 using DS.Elementions;
+using System;
 
 namespace Unity.EasyDialogue
 {
+
+
     public class DialogueGraphView : GraphView
     {
         public DialogueGraphView()
@@ -19,26 +22,31 @@ namespace Unity.EasyDialogue
         private void AddManipulators()
         {
             SetupZoom(ContentZoomer.DefaultMinScale, ContentZoomer.DefaultMaxScale);
-            this.AddManipulator(CreateNodeContextualMenu());
+            this.AddManipulator(CreateNodeContextualMenu("add Node (Single Choice)", DialogueType.SingleChoice));
+            this.AddManipulator(CreateNodeContextualMenu("add Node (Multiple Choice)", DialogueType.MultipleChoice));
             this.AddManipulator(new ContentDragger());
             this.AddManipulator(new SelectionDragger());
             this.AddManipulator(new RectangleSelector());
         }
 
-        private IManipulator CreateNodeContextualMenu()
+        private IManipulator CreateNodeContextualMenu(string actionTitle, DialogueType dialogueType)
         {
             ContextualMenuManipulator contextualMenuManipulator = new ContextualMenuManipulator(
-                menuEvent => menuEvent.menu.AppendAction("Add Node", actionEvent => AddElement(CreateNode(actionEvent.eventInfo.localMousePosition)))
+                menuEvent => menuEvent.menu.AppendAction(actionTitle, actionEvent => AddElement(CreateNode(dialogueType, actionEvent.eventInfo.localMousePosition)))
             );
 
             return contextualMenuManipulator;
         }
 
-        public DialogueNode CreateNode(Vector2 position)
+        public DialogueNode CreateNode(DialogueType dialogueType, Vector2 position)
         {
-            DialogueSingleChoiceNode node = new DialogueSingleChoiceNode();
+            Type nodeType = Type.GetType($"DS.Elementions.Dialogue{dialogueType}Node");
+
+            DialogueNode node = (DialogueNode) Activator.CreateInstance(nodeType);
+            
             node.Initialize(position);
             node.Draw();
+            
             return node;
         }
 
@@ -66,10 +74,13 @@ namespace Unity.EasyDialogue
 
         private void AddStyles()
         {
-            StyleSheet styleSheet = (StyleSheet) EditorGUIUtility.Load(
+            StyleSheet graphViewStyleSheet = (StyleSheet) EditorGUIUtility.Load(
                 "Assets/Dialogue/EditorDefaulrResources/DialogueSystem/DialogueGraphviewStyles.uss");
+            StyleSheet nodeStyleSheet = (StyleSheet) EditorGUIUtility.Load(
+                "Assets/Dialogue/EditorDefaulrResources/DialogueSystem/DialogueNodeStyles.uss");
 
-            styleSheets.Add(styleSheet);
+            styleSheets.Add(graphViewStyleSheet);
+            styleSheets.Add(nodeStyleSheet);
         }
     }
 }
