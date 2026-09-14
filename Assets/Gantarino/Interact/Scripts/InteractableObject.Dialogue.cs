@@ -2,6 +2,7 @@ using UnityEngine;
 
 public partial class InteractableObject
 {
+    [Header("Dialogue Config")]
     [SerializeField]
     private DialogueCanvas dialogueCanvas;
     [SerializeField]
@@ -11,7 +12,7 @@ public partial class InteractableObject
     {
         if (dialogueCanvas == null || dialogueContainer == null)
         {
-            Debug.LogWarning("DialogueCanvas or DialogueContainer is not assigned.");
+            Debug.LogWarning($"DialogueCanvas or DialogueContainer is not assigned on {gameObject.name}.");
             return;
         }
 

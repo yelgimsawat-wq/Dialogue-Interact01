@@ -2,19 +2,18 @@ using UnityEngine;
 
 public partial class InteractableObject
 {
+    [Header("Light Config")]
     [SerializeField]
-    private Light light;
+    private Light targetLight;
 
     partial void LightUpdate()
     {
-        if (light == null)
+        if (targetLight == null)
         {
-            Debug.LogWarning("Light component is not assigned.");
+            Debug.LogWarning($"Light component is not assigned on {gameObject.name}.");
             return;
         }
 
-        light.enabled = !light.enabled;
+        targetLight.enabled = !targetLight.enabled;
     }
-
 }
-
