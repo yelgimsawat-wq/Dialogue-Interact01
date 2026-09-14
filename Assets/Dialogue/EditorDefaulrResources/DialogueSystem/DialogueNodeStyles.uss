@@ -1,25 +1,25 @@
 .ds-node__extension-container
 {
-    background-color: #1d1d1e;
+    background-color: var(--ds-colors-window-dark-grey-1);
     padding: 8px;
 }
 
 .ds-node__main-container
 {
-    background-color: #1d1d1e;
+    background-color: var(--ds-colors-window-dark-grey-1);
 }
 
 .ds-node__custom-extension-container
 {
-    background-color: #212325;
+    background-color: var(--ds-colors-window-dark-grey-3);
     border-radius: 4px;
     padding: 8px;
 }
 
 .ds-node__textfield > .unity-text-field__input
 {
-    background-color: #1d1d1e;
-    border-color: #27292c;
+    background-color: var(--ds-colors-window-dark-grey-1);
+    border-color: var(--ds-colors-window-dark-grey-6);
     border-radius: 4px;
     max-width: 240px;
     min-width: 160px;
@@ -36,8 +36,8 @@
 
 .ds-node__textfield_hidden > .unity-text-field__input:focus
 {
-    background-color: #1d1d1e;
-    border-color: #27292c;
+    background-color: var(--ds-colors-window-dark-grey-1);
+    border-color: var(--ds-colors-window-dark-grey-6);
 
 }
 
@@ -69,9 +69,9 @@
 
 .ds-node__quote-textfield > .unity-text-field__input
 {
-    background-color: #232527;
+    background-color: var(--ds-colors-window-dark-grey-4);
     border-color: transparent;
-    border-left-color: #27292c;
+    border-left-color: var(--ds-colors-window-dark-grey-6);
     border-left-width: 4px;
     padding: 16px;
     max-width: 600px;
@@ -79,32 +79,32 @@
 
 .ds-node__quote-textfield > .unity-text-field__input:hover
 {
-    background-color: #252729;
+    background-color: var(--ds-colors-window-dark-grey-5);
 }
 
 .ds-node__quote-textfield > .unity-text-field__input:focus
 {
-    background-color: #1d1d1e;
-    border-color: #27292c;
+    background-color: var(--ds-colors-window-dark-grey-1);
+    border-color: var(--ds-colors-window-dark-grey-6);
 }
 
 .ds-node__button
 {
-    background-color: #252729;
-    border-color: #1d1d1e;
+    background-color: var(--ds-colors-window-dark-grey-5);
+    border-color: var(--ds-colors-window-dark-grey-1);
     max-height: 25px;
     margin: 4px;
 }
 
 .ds-node__button:hover
 {
-    background-color: #2b2d2f;
+    background-color: var(--ds-colors-window-dark-grey-2);
 }
 
 .ds-node__button:active
 {
-    background-color: #212325;
-    color: #FDD057;
+    background-color: var(--ds-colors-window-dark-grey-3);
+    color: var(--ds-colors-window-yellow);
 
 }
 
@@ -118,7 +118,8 @@
 
 .ds-node__textname-textfield
 {
-    flex-grow: 1;
+    flex-grow: 0;
+    flex-shrink: 0;
 }
 
 TextField

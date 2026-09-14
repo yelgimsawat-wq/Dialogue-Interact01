@@ -8,48 +8,21 @@ using System;
 
 namespace Unity.EasyDialogue
 {
-
+    using DS.Data.Error;
 
     public class DialogueGraphView : GraphView
     {
+
+        private Dictionary<string, DSNodeErrorData> ungroupNode;
         public DialogueGraphView()
         {
-            AddManipulators();
+            ungroupNode = new Dictionary<string, DSNodeErrorData>();            AddManipulators();
             AddGridBackground();
             AddStyles();
+
+            OnElementsDeleted();
         }
-
-        private void AddManipulators()
-        {
-            SetupZoom(ContentZoomer.DefaultMinScale, ContentZoomer.DefaultMaxScale);
-            this.AddManipulator(CreateNodeContextualMenu("add Node (Single Choice)", DialogueType.SingleChoice));
-            this.AddManipulator(CreateNodeContextualMenu("add Node (Multiple Choice)", DialogueType.MultipleChoice));
-            this.AddManipulator(new ContentDragger());
-            this.AddManipulator(new SelectionDragger());
-            this.AddManipulator(new RectangleSelector());
-        }
-
-        private IManipulator CreateNodeContextualMenu(string actionTitle, DialogueType dialogueType)
-        {
-            ContextualMenuManipulator contextualMenuManipulator = new ContextualMenuManipulator(
-                menuEvent => menuEvent.menu.AppendAction(actionTitle, actionEvent => AddElement(CreateNode(dialogueType, actionEvent.eventInfo.localMousePosition)))
-            );
-
-            return contextualMenuManipulator;
-        }
-
-        public DialogueNode CreateNode(DialogueType dialogueType, Vector2 position)
-        {
-            Type nodeType = Type.GetType($"DS.Elementions.Dialogue{dialogueType}Node");
-
-            DialogueNode node = (DialogueNode) Activator.CreateInstance(nodeType);
-            
-            node.Initialize(position);
-            node.Draw();
-            
-            return node;
-        }
-
+        
         public override List<Port> GetCompatiblePorts(Port startPort, NodeAdapter nodeAdapter)
         {
             List<Port> compatiblePorts = new List<Port>();
@@ -65,6 +38,132 @@ namespace Unity.EasyDialogue
             return compatiblePorts;
         }
 
+        private void AddManipulators()
+        {
+            SetupZoom(ContentZoomer.DefaultMinScale, ContentZoomer.DefaultMaxScale);
+            this.AddManipulator(CreateNodeContextualMenu("add Node (Single Choice)", DialogueType.SingleChoice));
+            this.AddManipulator(CreateNodeContextualMenu("add Node (Multiple Choice)", DialogueType.MultipleChoice));
+            this.AddManipulator(new ContentDragger());
+            
+            this.AddManipulator(CreateGroupContextualMenu());
+
+            this.AddManipulator(new SelectionDragger());
+            this.AddManipulator(new RectangleSelector());
+        }
+
+        private IManipulator CreateGroupContextualMenu()
+        {
+            ContextualMenuManipulator contextualMenuManipulator = new ContextualMenuManipulator(
+                menuEvent => menuEvent.menu.AppendAction("Add Group", actionEvent => AddElement(CreateGroup("DialogueGroup", actionEvent.eventInfo.localMousePosition)))
+            );
+
+            return contextualMenuManipulator;
+        }
+
+
+        private IManipulator CreateNodeContextualMenu(string actionTitle, DialogueType dialogueType)
+        {
+            ContextualMenuManipulator contextualMenuManipulator = new ContextualMenuManipulator(
+                menuEvent => menuEvent.menu.AppendAction(actionTitle, actionEvent => AddElement(CreateNode(dialogueType, actionEvent.eventInfo.localMousePosition)))
+            );
+
+            return contextualMenuManipulator;
+        }
+
+        private Group CreateGroup(string title,Vector2 localMousePosition)
+        {
+            Group group = new Group()
+            {
+                title = title
+            };
+
+            group.SetPosition(new Rect(localMousePosition, Vector2.zero));
+
+            return group;
+        }
+
+        public DialogueNode CreateNode(DialogueType dialogueType, Vector2 position)
+        {
+            Type nodeType = Type.GetType($"DS.Elementions.Dialogue{dialogueType}Node");
+
+            DialogueNode node = (DialogueNode) Activator.CreateInstance(nodeType);
+            
+            node.Initialize(this, position);
+            node.Draw();
+
+            AddUngroupedNode(node);
+            
+            return node;
+        }
+
+
+        private void OnElementsDeleted()
+        {
+            deleteSelection = (operationName, askUser) =>
+        {
+            List<DialogueNode> nodesToDelete = new List<DialogueNode>();
+
+            foreach (var element in selection)
+            {
+                if (element is DialogueNode node)
+                    {
+                        nodesToDelete.Add(node);
+                    }
+            }
+
+            foreach (DialogueNode node in nodesToDelete)
+            {
+                RemoveUngroupedNode(node);
+                RemoveElement(node);
+            }
+        };
+        }
+
+
+        public void AddUngroupedNode(DialogueNode node)
+        {
+            string nodeName = node.DialogueName;
+
+            if (!ungroupNode.ContainsKey(nodeName))
+        {
+            DSNodeErrorData nodeErrorData = new DSNodeErrorData();
+            nodeErrorData.Nodes.Add(node);
+
+            ungroupNode.Add(nodeName, nodeErrorData);
+            return;
+        }  
+
+            DSNodeErrorData existingData = ungroupNode[nodeName];
+            existingData.Nodes.Add(node);
+
+            Color errorColor = existingData.ErrorData.Color;
+            node.SetErrorStyle(errorColor);
+
+            if (existingData.Nodes.Count == 2)
+        {
+            existingData.Nodes[0].SetErrorStyle(errorColor);
+        }
+        }
+
+        public void RemoveUngroupedNode(DialogueNode node)
+        {
+            string nodeName = node.DialogueName;
+
+            List<DialogueNode> ungroupNodesList = ungroupNode[nodeName].Nodes;
+
+            ungroupNodesList.Remove(node);
+            node.ResetStyle();
+
+            if (ungroupNodesList.Count == 1)
+            {
+                ungroupNodesList[0].ResetStyle();
+            }
+            else if (ungroupNodesList.Count == 0)
+            {
+                ungroupNode.Remove(nodeName);
+            }
+        }
+
         private void AddGridBackground()
         {
             GridBackground gridBackground = new GridBackground();
@@ -78,9 +177,14 @@ namespace Unity.EasyDialogue
                 "Assets/Dialogue/EditorDefaulrResources/DialogueSystem/DialogueGraphviewStyles.uss");
             StyleSheet nodeStyleSheet = (StyleSheet) EditorGUIUtility.Load(
                 "Assets/Dialogue/EditorDefaulrResources/DialogueSystem/DialogueNodeStyles.uss");
+            StyleSheet variablesStyleSheet = (StyleSheet)EditorGUIUtility.Load(
+                "Assets/Dialogue/EditorDefaulrResources/DialogueSystem/DialogueVariables.uss");
 
+            styleSheets.Add(variablesStyleSheet);
             styleSheets.Add(graphViewStyleSheet);
             styleSheets.Add(nodeStyleSheet);
+            
+
         }
     }
 }

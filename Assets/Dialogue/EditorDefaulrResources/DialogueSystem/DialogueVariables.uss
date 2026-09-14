@@ -3,6 +3,14 @@
     --ds-colors-grid-light-grey-1: #2b2b2b;
     --ds-colors-grid-light-grey-2: rgba(51, 51, 51, 0.4);
     --ds-colors-grid-light-grey-3: rgba(51, 51, 51, 1);
+    --ds-colors-window-dark-grey-1: #1d1d1e;
+    --ds-colors-window-dark-grey-2: #2b2d2f;
+    --ds-colors-window-dark-grey-3: #212325;
+    --ds-colors-window-dark-grey-4: #232527;
+    --ds-colors-window-dark-grey-5: #252729;
+    --ds-colors-window-dark-grey-6: #27292c;
+    --ds-colors-window-yellow: #fdd057;
+
 
     --ds-metrics-grid-25: 25;
 }

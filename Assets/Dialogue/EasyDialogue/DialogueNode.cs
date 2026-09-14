@@ -6,6 +6,9 @@ using UnityEngine.UIElements;
 
 namespace DS.Elementions
 {
+    using DS.Utilities;
+    using Unity.EasyDialogue;
+
     public class DialogueNode : Node
     {
         public string DialogueName { get; set; }
@@ -14,11 +17,17 @@ namespace DS.Elementions
         public DialogueType DialogueType { get; set; }
         public Port InputPort { get; private set; }
 
-        public virtual void Initialize(Vector2 position)
+        private DialogueGraphView graphView;
+        private Color defaultBackgroundColor;
+
+        public virtual void Initialize(DialogueGraphView dsGraphView, Vector2 position)
         {
             DialogueName = "DialogueName";
             Choices = new List<string>();
             Text = "Dialogue Text";
+
+            graphView = dsGraphView;
+            defaultBackgroundColor = new Color(29f / 255f, 29f / 255f ,30f / 255f);
 
             SetPosition(new Rect(position, Vector2.zero));
 
@@ -39,10 +48,14 @@ namespace DS.Elementions
 
             Label nameLabel = new Label("DialogueName:");
             
-            TextField dialogueNameTextField = new TextField()
+            TextField dialogueNameTextField = DSElementUtility.CreateTextField(DialogueName, callback =>
             {
-                value = DialogueName,
-            };
+                graphView.RemoveUngroupedNode(this);
+
+                DialogueName = callback.newValue;
+
+                graphView.AddUngroupedNode(this);
+            });
 
             dialogueNameTextField.AddToClassList("ds-node__textfield");
             dialogueNameTextField.AddToClassList("ds-node__textname-textfield");
@@ -55,8 +68,8 @@ namespace DS.Elementions
             nameContainer.Add(dialogueNameTextField);
             titleContainer.Add(nameContainer);
 
-            Port InputPort = InstantiatePort(Orientation.Horizontal, Direction.Input, Port.Capacity.Multi, typeof(bool));
-            InputPort.portName = "Dialogue Connection";
+            Port InputPort = this.CreatePort("Dialogue Connection", Orientation.Horizontal, Direction.Input, Port.Capacity.Multi);
+
             inputContainer.Add(InputPort);
 
             VisualElement customContainer = new VisualElement();
@@ -68,17 +81,9 @@ namespace DS.Elementions
             // customContainer.style.paddingTop = 5;
             // customContainer.style.paddingBottom = 5;
 
-            Foldout textFoldout = new Foldout()
-            {
-                text = "Dialogue Text",
-                value = true
-            };
+            Foldout textFoldout = DSElementUtility.CreateFoldout("Dialogue Text");
 
-            TextField textTextField = new TextField()
-            {
-                value = Text,
-                multiline = true
-            };
+            TextField textTextField = DSElementUtility.CreateTextArea(Text);
 
             // textTextField.style.height = 60;
             textTextField.RegisterValueChangedCallback(evt => { Text = evt.newValue; });
@@ -91,6 +96,16 @@ namespace DS.Elementions
             extensionContainer.Add(customContainer);
 
             RefreshExpandedState();
+        }
+
+        public void SetErrorStyle(Color color)
+        {
+            mainContainer.style.backgroundColor = color;
+        }
+
+        public void ResetStyle()
+        {
+            mainContainer.style.backgroundColor = defaultBackgroundColor;
         }
     }
 }

@@ -2,19 +2,21 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor.Experimental.GraphView;
 using DS.Elementions;
+using Unity.EasyDialogue;
 
 namespace DS.Elementions 
 {
+    using DS.Utilities;
+
     public class DialogueSingleChoiceNode : DialogueNode
     {
         public List<(string choiceText, Port port)> choicesPorts { get; private set; }
 
-        public override void Initialize(Vector2 position)
+        public override void Initialize(DialogueGraphView dsGraphView, Vector2 position)
         {
-            base.Initialize(position);
+            base.Initialize(dsGraphView, position);
             
             DialogueType = DialogueType.SingleChoice;
-
             Choices.Add("Next Dialogue");
 
             choicesPorts = new List<(string, Port)>();
@@ -26,12 +28,12 @@ namespace DS.Elementions
             
             foreach (string choice in Choices)
             {
-                Port choicePort = InstantiatePort(Orientation.Horizontal, Direction.Output, Port.Capacity.Single, typeof(bool));
-                choicePort.portName = choice;
+                Port choicePort = this.CreatePort(choice);
                 outputContainer.Add(choicePort);
 
                 choicesPorts.Add((choice, choicePort));
             }
+            
             
             RefreshExpandedState();
         }

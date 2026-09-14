@@ -4,6 +4,10 @@ using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UIElements;
 using DS.Elementions;
+using DS.Utilities;
+using System.Linq;
+using Unity.EasyDialogue;
+
 
 namespace DS.Elementions
 {
@@ -14,9 +18,9 @@ namespace DS.Elementions
         
         public List<(string choiceText, Port port)> choicesPorts { get; private set; }
 
-        public override void Initialize(Vector2 position)
+        public override void Initialize(DialogueGraphView dsGraphView, Vector2 position)
         {
-            base.Initialize(position);
+            base.Initialize(dsGraphView, position);
 
             DialogueType = DialogueType.MultipleChoice;
 
@@ -28,10 +32,14 @@ namespace DS.Elementions
         public override void Draw()
         {
             base.Draw();
-            Button addChoiceButton = new Button()
+            Button addChoiceButton = DSElementUtility.CreateButton("Add Choice", () =>
             {
-                text = "Add Choice"
-            };
+                Port choicePort = CreateChoicePort("New Choice");
+
+                Choices.Add("New Choice");
+
+                outputContainer.Add(choicePort);
+            });
 
             addChoiceButton.AddToClassList("ds-node__button");
 
@@ -39,34 +47,33 @@ namespace DS.Elementions
             
             foreach (string choice in Choices)
             {
-                Port choicePort = InstantiatePort(Orientation.Horizontal, Direction.Output, Port.Capacity.Single, typeof(bool));
-                choicePort.portName = "";
-
-                Button deleteChoiceButton = new Button()
-                {
-                    text = "x"
-                };
-
-                deleteChoiceButton.AddToClassList("ds-node__button");
-
-                TextField choiceTextField = new TextField()
-                {
-                    value = choice
-                };
+                Port choicePort = CreateChoicePort(choice);
 
                 outputContainer.Add(choicePort);
-
-                
-                choiceTextField.AddToClassList("ds-node__textfield");
-                choiceTextField.AddToClassList("ds-node__choice-textfield");
-                choiceTextField.AddToClassList("ds-node__textfield__hidden");
-
-                choicesPorts.Add((choice, choicePort));
-                choicePort.Add(choiceTextField);
-                choicePort.Add(deleteChoiceButton);
             }
             
-            RefreshExpandedState();        }
+            RefreshExpandedState();
+        }
+
+        private Port CreateChoicePort(string choice)
+        {
+            Port choicePort = this.CreatePort();
+
+            Button deleteChoiceButton = DSElementUtility.CreateButton("X");
+
+            deleteChoiceButton.AddToClassList("ds-node__button");
+
+            TextField choiceTextField = DSElementUtility.CreateTextField(choice);
+
+            choiceTextField.AddToClassList("ds-node__textfield");
+            choiceTextField.AddToClassList("ds-node__choice-textfield");
+            choiceTextField.AddToClassList("ds-node__textfield__hidden");
+
+            choicePort.Add(choiceTextField);
+            choicePort.Add(deleteChoiceButton);
+            return choicePort;
+        } 
+        
 
     }    
     
