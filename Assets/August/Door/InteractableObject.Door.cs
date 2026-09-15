@@ -31,7 +31,6 @@ public partial class InteractableObject
         Forward = transform.right;
     }
 
-    // Handles interaction toggle from InteractableObject.cs
     partial void DoorUpdate()
     {
         if (IsOpen)
@@ -40,7 +39,6 @@ public partial class InteractableObject
         }
         else
         {
-            // Pass this door's current position (or pass player position if available)
             Open(transform.position);
         }
     }
