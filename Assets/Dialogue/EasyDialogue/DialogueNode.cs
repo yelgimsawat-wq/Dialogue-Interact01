@@ -35,16 +35,19 @@ namespace DS.Elementions
             extensionContainer.AddToClassList("ds-node__extension-container");
         }
 
+        public override void BuildContextualMenu(ContextualMenuPopulateEvent evt)
+        {
+            evt.menu.AppendAction("Disconnect Input Ports", actionEvent => DisconnectPorts(inputContainer));
+            evt.menu.AppendAction("Disconnect Output Ports", actionEvent => DisconnectPorts(outputContainer));
+
+            base.BuildContextualMenu(evt);
+        }
+
         public virtual void Draw()
         {
             VisualElement nameContainer = new VisualElement();
             nameContainer.AddToClassList("ds-node__name-container");
-            // nameContainer.style.flexDirection = FlexDirection.Row;
-            // nameContainer.style.alignItems = Align.Center;
-            // nameContainer.style.paddingLeft = 5;
-            // nameContainer.style.paddingRight = 5;
-            // nameContainer.style.paddingTop = 5;
-            // nameContainer.style.paddingBottom = 5;
+
 
             Label nameLabel = new Label("DialogueName:");
             
@@ -61,7 +64,6 @@ namespace DS.Elementions
             dialogueNameTextField.AddToClassList("ds-node__textname-textfield");
             dialogueNameTextField.AddToClassList("ds-node__textfield_hidden");
 
-            // dialogueNameTextField.style.flexGrow = 1;
             dialogueNameTextField.AddToClassList("ds-node__name-field");
             dialogueNameTextField.RegisterValueChangedCallback(evt => DialogueName = evt.newValue);
 
@@ -76,16 +78,11 @@ namespace DS.Elementions
 
             customContainer.AddToClassList("ds-node__custom-data-container");
 
-            // customContainer.style.paddingLeft = 10;
-            // customContainer.style.paddingRight = 10;
-            // customContainer.style.paddingTop = 5;
-            // customContainer.style.paddingBottom = 5;
 
             Foldout textFoldout = DSElementUtility.CreateFoldout("Dialogue Text");
 
             TextField textTextField = DSElementUtility.CreateTextArea(Text);
 
-            // textTextField.style.height = 60;
             textTextField.RegisterValueChangedCallback(evt => { Text = evt.newValue; });
             
             textTextField.AddToClassList("ds-node__textfield");
@@ -96,6 +93,35 @@ namespace DS.Elementions
             extensionContainer.Add(customContainer);
 
             RefreshExpandedState();
+        }
+
+        public void DisconnectAllPorts()
+        {
+            DisconnectPorts(inputContainer);
+            DisconnectPorts(outputContainer);
+        }
+
+        private void DisconnectInputPorts()
+        {
+            DisconnectPorts(inputContainer);
+        }
+
+        private void DisconnectOutputPorts()
+        {
+            DisconnectPorts(outputContainer);
+        }
+
+        private void DisconnectPorts(VisualElement container)
+        {
+            foreach (Port port in container.Children())
+            {
+                if (!port.connected)
+                {
+                    continue;
+                }
+
+                graphView.DeleteElements(port.connections);
+            }
         }
 
         public void SetErrorStyle(Color color)

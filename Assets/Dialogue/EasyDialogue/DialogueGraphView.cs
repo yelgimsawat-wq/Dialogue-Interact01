@@ -102,18 +102,32 @@ namespace Unity.EasyDialogue
             deleteSelection = (operationName, askUser) =>
         {
             List<DialogueNode> nodesToDelete = new List<DialogueNode>();
+            List<Edge> edgesToDelete = new List<Edge>();
 
-            foreach (var element in selection)
+            foreach (GraphElement element in selection)
             {
                 if (element is DialogueNode node)
-                    {
-                        nodesToDelete.Add(node);
-                    }
+                {
+                    nodesToDelete.Add(node);
+                }
+
+                if (element is Edge edge)
+                {
+                    edge = (Edge) element;
+
+                    edgesToDelete.Add(edge);
+
+                    continue;
+                }
             }
+
+            DeleteElements(edgesToDelete);
 
             foreach (DialogueNode node in nodesToDelete)
             {
                 RemoveUngroupedNode(node);
+
+                node.DisconnectAllPorts();
                 RemoveElement(node);
             }
         };
