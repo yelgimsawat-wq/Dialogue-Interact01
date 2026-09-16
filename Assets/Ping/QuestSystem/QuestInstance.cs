@@ -4,7 +4,7 @@ using System;
 
 public class QuestInstance
 {
-    public event Action onCompleted;
+    public event Action<QuestInstance> onCompleted;
     public QuestSet quest;
     public List<QuestProgression> progressions;
 
@@ -49,16 +49,16 @@ public class QuestInstance
 
         if(IsCompleted() == true){
             completionHandled = true;
-            onCompleted?.Invoke();
+            onCompleted?.Invoke(this);
         }
     }
 
     private bool completionHandled = false;
 
-    public event Action<QuestProgression> onProgressChanged;
+    public event Action<QuestInstance, QuestProgression> onProgressChanged;
 
     private void HandleObjectiveChanged(QuestProgression progression){
-        onProgressChanged?.Invoke(progression);
+        onProgressChanged?.Invoke(this, progression);
     }
 
 
