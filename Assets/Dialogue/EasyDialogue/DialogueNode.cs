@@ -1,16 +1,18 @@
 using System.Collections.Generic; 
 using UnityEngine;
-using UnityEditor;
+using System;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine.UIElements;
 
 namespace DS.Elementions
 {
+    using System;
     using DS.Utilities;
     using Unity.EasyDialogue;
 
     public class DialogueNode : Node
     {
+        public string ID { get; set; }
         public string DialogueName { get; set; }
         public List<string> Choices { get; set; }
         public string Text { get; set; }
@@ -22,6 +24,7 @@ namespace DS.Elementions
 
         public virtual void Initialize(DialogueGraphView dsGraphView, Vector2 position)
         {
+            ID = Guid.NewGuid().ToString();
             DialogueName = "DialogueName";
             Choices = new List<string>();
             Text = "Dialogue Text";
