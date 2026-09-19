@@ -7,6 +7,13 @@ public enum QuestAcceptResult
     MissingQuestId,
     NoObjectives,
     InvalidObjectives,
-    AlreadyAccepted
+    AlreadyAccepted,
+    AlreadyCompleted,
+    RequirementNotMet,
+    InvalidQuest,
+    GiverDisabled,
+    SystemUnavailable,
+    Accepted = Success,
+    AlreadyActive = AlreadyAccepted
     
 }

@@ -7,6 +7,21 @@ public class QuestManager{
     public event Action<QuestInstance> onQuestCompleted;
     public event Action<QuestInstance, QuestProgression> onQuestProgressChanged;
     private List<QuestInstance> quests = new List<QuestInstance>();
+    public QuestAcceptResult TryAcceptQuest(QuestSet definition) => AcceptQuest(definition);
+    public QuestInstance GetQuestInstance(string questId) => GetQuest(questId);
+    public bool IsQuestCompleted(string questId) => GetQuest(questId)?.IsCompleted() == true;
+    public void ReportEvent(string eventId, int amount = 1) => ProcessEvent(eventId, null, amount);
+    public void ReportEvent(string eventId, string targetId, int amount = 1) => ProcessEvent(eventId, targetId, amount);
+
+    public bool AreRequirementsMet(QuestSet definition)
+    {
+        if (definition == null) return false;
+        if (definition.RequiredQuests == null) return true;
+        foreach (var prerequisite in definition.RequiredQuests)
+            if (prerequisite == null || prerequisite == definition ||
+                !IsQuestCompleted(prerequisite.QuestId)) return false;
+        return true;
+    }
     public QuestAcceptResult AcceptQuest(QuestSet questDefinition){
         if(questDefinition == null){
             return QuestAcceptResult.NullDefinition;
@@ -26,7 +41,6 @@ public class QuestManager{
             }
 
             if (string.IsNullOrWhiteSpace(objective.EventId) ||
-                string.IsNullOrWhiteSpace(objective.TargetId) ||
                 objective.requiredAmount <= 0)
             {
                 return QuestAcceptResult.InvalidObjectives;
@@ -35,10 +49,11 @@ public class QuestManager{
 
         foreach(QuestInstance existingQuest in quests){
             if(existingQuest.quest.QuestId == questDefinition.QuestId){
-                return QuestAcceptResult.AlreadyAccepted;
+                return existingQuest.IsCompleted() ? QuestAcceptResult.AlreadyCompleted : QuestAcceptResult.AlreadyActive;
             }
         }
         
+        if (!AreRequirementsMet(questDefinition)) return QuestAcceptResult.RequirementNotMet;
         QuestInstance newQuest = new QuestInstance(questDefinition);
         quests.Add(newQuest);
         newQuest.onCompleted += HandleQuestCompleted;
@@ -48,8 +63,8 @@ public class QuestManager{
     }
 
     public void ProcessEvent(string eventId, string targetId, int amount){
-
-        foreach(QuestInstance quest in quests){
+        if (string.IsNullOrWhiteSpace(eventId) || amount <= 0) return;
+        foreach(QuestInstance quest in quests.ToArray()){
             quest.ProcessEvent(eventId, targetId, amount);
         }
         

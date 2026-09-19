@@ -1,12 +1,15 @@
 using UnityEngine;
 
+[AddComponentMenu("Quest/Testing/Quest Tester")]
 public class QuestTester : MonoBehaviour{
 
     public QuestSet TestQuest;
     public QuestSet SecondTestQuest;
     [SerializeField] private QuestSystem questSystem;
 
-    private void Start(){
+    [ContextMenu("Run Quest Test (Play Mode)")]
+    public void RunTest(){
+        if (!Application.isPlaying || questManager != null) return;
         Debug.Log("Start test");
         if (questSystem == null)
         {

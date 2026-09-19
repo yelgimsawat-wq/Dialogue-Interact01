@@ -4,6 +4,7 @@ using System;
 [Serializable]
 public class QuestObjective_Child
 {
+    public string ObjectiveId;
     [Tooltip("What do quest want")]
     public string DisplayName;
 
@@ -18,4 +19,10 @@ public class QuestObjective_Child
 
     [Min(1)]
     public int requiredAmount = 1;
+
+    public bool MatchesEvent(string eventId, string targetId)
+    {
+        return !string.IsNullOrWhiteSpace(eventId) && EventId == eventId &&
+            (string.IsNullOrWhiteSpace(TargetId) || TargetId == targetId);
+    }
 }

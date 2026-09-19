@@ -22,7 +22,7 @@ public class QuestProgression{
             return;
         }
         
-        currentAmount += Amount;
+        currentAmount += Math.Min(Amount, definition.requiredAmount - currentAmount);
 
         if(currentAmount > definition.requiredAmount){
             currentAmount = definition.requiredAmount;
@@ -37,7 +37,7 @@ public class QuestProgression{
     }
 
     public bool MatchesEvent(string eventId , string targetId){
-        return definition.EventId == eventId && definition.TargetId == targetId;
+        return definition.MatchesEvent(eventId, targetId);
     }
 
     public int GetCurrentAmount(){
