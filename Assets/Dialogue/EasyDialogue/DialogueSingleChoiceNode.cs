@@ -6,6 +6,7 @@ using Unity.EasyDialogue;
 
 namespace DS.Elementions 
 {
+    using Data.Save;
     using DS.Utilities;
 
     public class DialogueSingleChoiceNode : DialogueNode
@@ -17,7 +18,12 @@ namespace DS.Elementions
             base.Initialize(dsGraphView, position);
             
             DialogueType = DialogueType.SingleChoice;
-            Choices.Add("Next Dialogue");
+
+            DSChoiceSaveData choiceData = new DSChoiceSaveData()
+            {
+                Text = "Next Dialogue" 
+            };
+            Choices.Add(choiceData);
 
             choicesPorts = new List<(string, Port)>();
         }
@@ -26,12 +32,12 @@ namespace DS.Elementions
         {
             base.Draw();
             
-            foreach (string choice in Choices)
+            foreach (DSChoiceSaveData choice in Choices)
             {
-                Port choicePort = this.CreatePort(choice);
+                Port choicePort = this.CreatePort(choice.Text);
                 outputContainer.Add(choicePort);
 
-                choicesPorts.Add((choice, choicePort));
+                choicesPorts.Add((choice.Text, choicePort));
             }
             
             

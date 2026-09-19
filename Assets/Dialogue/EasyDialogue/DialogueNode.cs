@@ -9,24 +9,25 @@ namespace DS.Elementions
     using System;
     using DS.Utilities;
     using Unity.EasyDialogue;
+    using DS.Data.Save;
 
     public class DialogueNode : Node
     {
         public string ID { get; set; }
         public string DialogueName { get; set; }
-        public List<string> Choices { get; set; }
+        public List<DSChoiceSaveData> Choices { get; set; }
         public string Text { get; set; }
         public DialogueType DialogueType { get; set; }
         public Port InputPort { get; private set; }
 
-        private DialogueGraphView graphView;
+        protected DialogueGraphView graphView;
         private Color defaultBackgroundColor;
 
         public virtual void Initialize(DialogueGraphView dsGraphView, Vector2 position)
         {
             ID = Guid.NewGuid().ToString();
             DialogueName = "DialogueName";
-            Choices = new List<string>();
+            Choices = new List<DSChoiceSaveData>();
             Text = "Dialogue Text";
 
             graphView = dsGraphView;
