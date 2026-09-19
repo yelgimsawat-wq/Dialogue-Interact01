@@ -37,10 +37,12 @@ public class QuestInstance
 
     public void ProcessEvent(string eventId, string targetId, int amount){
         
-        if(completionHandled == true){
+        if(completionHandled || processingEvent || amount <= 0 || string.IsNullOrWhiteSpace(eventId)){
             return;
         }
 
+        processingEvent = true;
+        try {
         foreach(var progression in progressions){
             if(!progression.IsCompleted() && progression.MatchesEvent(eventId, targetId)){
                 progression.Increment(amount);
@@ -51,9 +53,13 @@ public class QuestInstance
             completionHandled = true;
             onCompleted?.Invoke(this);
         }
+        }
+        finally { processingEvent = false; }
     }
 
     private bool completionHandled = false;
+    private bool processingEvent;
+    public bool IsActive => !IsCompleted();
 
     public event Action<QuestInstance, QuestProgression> onProgressChanged;
 
