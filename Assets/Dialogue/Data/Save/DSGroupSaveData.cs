@@ -1,16 +1,13 @@
+using System;
 using UnityEngine;
 
-public class DSGroupSaveData : MonoBehaviour
+namespace DS.Data.Save
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    [Serializable]
+    public class DSGroupSaveData
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        [field: SerializeField] public string ID { get; set; }
+        [field: SerializeField] public string Name { get; set; }
+        [field: SerializeField] public Vector2 Position { get; set; }
     }
 }

@@ -9,6 +9,7 @@ using System;
 namespace Unity.EasyDialogue
 {
     using DS.Data.Error;
+    using DS.Data.Save;
 
     public class DialogueGraphView : GraphView
     {
@@ -16,12 +17,15 @@ namespace Unity.EasyDialogue
         private Dictionary<string, DSNodeErrorData> ungroupNode;
         public DialogueGraphView()
         {
-            ungroupNode = new Dictionary<string, DSNodeErrorData>();            AddManipulators();
+            ungroupNode = new Dictionary<string, DSNodeErrorData>();
+            AddManipulators();
             AddGridBackground();
             AddStyles();
 
             OnElementsDeleted();
+
         }
+
         
         public override List<Port> GetCompatiblePorts(Port startPort, NodeAdapter nodeAdapter)
         {
@@ -70,14 +74,9 @@ namespace Unity.EasyDialogue
             return contextualMenuManipulator;
         }
 
-        private Group CreateGroup(string title,Vector2 localMousePosition)
+        private DSGroup CreateGroup(string title, Vector2 localMousePosition)
         {
-            Group group = new Group()
-            {
-                title = title
-            };
-
-            group.SetPosition(new Rect(localMousePosition, Vector2.zero));
+            DSGroup group = new DSGroup(title, localMousePosition);
 
             return group;
         }
@@ -199,6 +198,41 @@ namespace Unity.EasyDialogue
             styleSheets.Add(nodeStyleSheet);
             
 
+        }
+        private void OnGraphViewChanged()
+        {
+            graphViewChanged = (changes) =>
+            {
+              if (changes.edgesToCreate != null)
+                {
+                    foreach (Edge edge in changes.edgesToCreate)
+                    {
+                        DialogueNode nextNode = (DialogueNode) edge.input.node;
+
+                        DSChoiceSaveData choiceData = (DSChoiceSaveData) edge.output.userData;
+
+                        choiceData.NodeID = nextNode.ID;
+                    }
+                }  
+
+                if (changes.elementsToRemove != null)
+                {
+                    Type edgeType = typeof(Edge);
+
+                    foreach (GraphElement element in changes.elementsToRemove)
+                    {
+                        if (element.GetType() != edgeType)
+                        {
+                            continue;
+                        }
+                        Edge edge = (Edge) element;
+                        DSChoiceSaveData choiceData = (DSChoiceSaveData) edge.output.userData;
+
+                        choiceData.NodeID = "";
+                    }
+                }
+                return changes;
+            };
         }
     }
 }
