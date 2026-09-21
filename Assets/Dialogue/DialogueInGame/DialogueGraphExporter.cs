@@ -2,14 +2,16 @@ using UnityEngine;
 using System.Collections.Generic;
 using UnityEditor.Experimental.GraphView;
 using DS.Elementions;
-using DS.Data.Save;
 using UnityEditor;
 using UnityEngine.UIElements;
 
 namespace Unity.EasyDialogue
 {
-   public class DialogueGraphExporter 
+   public static partial class DialogueGraphExporter
    {
+        static partial void ExportSingleChoice(DialogueNode node, DialogLine line, Dictionary<DialogueNode, DialogLine> nodeToLine);
+        static partial void ExportMultipleChoice(DialogueNode node, DialogLine line, Dictionary<DialogueNode, DialogLine> nodeToLine);
+
         public static DialogueContainer Export(DialogueGraphView graphView, DialogueContainer target = null, string defaultFileName = "New Dialogue")
         {
             if (graphView == null)
@@ -69,25 +71,8 @@ namespace Unity.EasyDialogue
             foreach (DialogueNode node in nodes)
             {
                 DialogLine line = nodeToLine[node];
-
-                foreach (VisualElement element in node.outputContainer.Children())
-                {
-                    if (!(element is Port port))
-                    {
-                        continue;
-                    }
-
-                    string choiceText = port.userData is DSChoiceSaveData choice
-                        ? choice.Text
-                        : port.portName;
-                    string nextDialogueName = FindConnectedDialogueName(port, nodeToLine);
-
-                    line.Choices.Add(new DialogLine.DialogChoice
-                    {
-                        ChoiceText = choiceText, 
-                        NextDialogueName = nextDialogueName
-                    }); 
-                }
+                ExportSingleChoice(node, line, nodeToLine);
+                ExportMultipleChoice(node, line, nodeToLine);
             }
 
             string startDialogueName = nodeToLine[FindStartNode(nodes)].DialogueName;
@@ -116,6 +101,19 @@ namespace Unity.EasyDialogue
                 }
             }
             return "";
+        }
+
+        private static void ExportPorts(DialogueNode node, DialogLine line, Dictionary<DialogueNode, DialogLine> nodeToLine)
+        {
+            foreach (VisualElement element in node.outputContainer.Children())
+            {
+                if (!(element is Port port)) continue;
+                line.Choices.Add(new DialogLine.DialogChoice
+                {
+                    ChoiceText = port.portName,
+                    NextDialogueName = FindConnectedDialogueName(port, nodeToLine)
+                });
+            }
         }
 
         private static DialogueNode FindStartNode(List<DialogueNode> nodes)

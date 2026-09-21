@@ -62,6 +62,7 @@ public partial class InteractableObject : MonoBehaviour, IInteractable, ISeriali
     partial void LightUpdate();
     partial void DialogueUpdate();
     partial void DoorUpdate();
+    partial void QuestUpdate();
     partial void Open(Vector3 userPosition);
     partial void Close();
 }

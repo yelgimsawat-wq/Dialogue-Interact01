@@ -1,19 +1,21 @@
 using UnityEngine;
+using System.Collections.Generic;
+
 
 public partial class InteractableObject
 {
     [Header("Light Config")]
     [SerializeField]
-    private Light targetLight;
+    private List<Light> targetlights = new List<Light>();
 
     partial void LightUpdate()
     {
-        if (targetLight == null)
+        foreach(Light targetLight in targetlights)
         {
-            Debug.LogWarning($"Light component is not assigned on {gameObject.name}.");
-            return;
+            if (targetLight != null)
+            {
+                targetLight.enabled = !targetLight.enabled;
+            }
         }
-
-        targetLight.enabled = !targetLight.enabled;
     }
 }

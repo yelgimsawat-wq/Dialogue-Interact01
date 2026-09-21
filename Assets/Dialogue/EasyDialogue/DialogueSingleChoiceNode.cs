@@ -35,6 +35,7 @@ namespace DS.Elementions
             foreach (DSChoiceSaveData choice in Choices)
             {
                 Port choicePort = this.CreatePort(choice.Text);
+                choicePort.userData = choice;
                 outputContainer.Add(choicePort);
 
                 choicesPorts.Add((choice.Text, choicePort));

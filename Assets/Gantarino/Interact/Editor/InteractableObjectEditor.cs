@@ -9,7 +9,7 @@ public class InteractableObjectEditor : Editor
     private SerializedProperty interactableType;
     private SerializedProperty dialogueCanvas;
     private SerializedProperty dialogueContainer;
-    private SerializedProperty targetLight;
+    private SerializedProperty targetLights;
     private SerializedProperty door;
     private SerializedProperty doorPivot;
     private SerializedProperty isOpen;
@@ -28,7 +28,7 @@ public class InteractableObjectEditor : Editor
         interactableType = serializedObject.FindProperty("interactionTypes");
         dialogueCanvas = serializedObject.FindProperty("dialogueCanvas");
         dialogueContainer = serializedObject.FindProperty("dialogueContainer");
-        targetLight = serializedObject.FindProperty("targetLight");
+        targetLights = serializedObject.FindProperty("targetlights");
         door = serializedObject.FindProperty("door");
         doorPivot = serializedObject.FindProperty("doorPivot");
         isOpen = serializedObject.FindProperty("IsOpen");
@@ -53,28 +53,25 @@ public class InteractableObjectEditor : Editor
         InteractionActions selectedType = (InteractionActions)interactableType.intValue;
         if ((selectedType & InteractionActions.Door) != 0)
         {
-            showInteractionSettings = EditorGUILayout.BeginFoldoutHeaderGroup(showInteractionSettings, "Interaction Settings");
+            showInteractionSettings = EditorGUILayout.Foldout(showInteractionSettings, "Interaction Settings", true);
             if (showInteractionSettings)
             {
                 EditorGUILayout.PropertyField(isOpen);
                 EditorGUILayout.PropertyField(isRotatingDoor);
                 EditorGUILayout.PropertyField(speed);
             }
-            EditorGUILayout.EndFoldoutHeaderGroup();
-
             if (isRotatingDoor.boolValue || isRotatingDoor.hasMultipleDifferentValues)
             {
-                showRotationSettings = EditorGUILayout.BeginFoldoutHeaderGroup(showRotationSettings, "Rotation Settings");
+                showRotationSettings = EditorGUILayout.Foldout(showRotationSettings, "Rotation Settings", true);
                 if (showRotationSettings)
                 {
                     EditorGUILayout.PropertyField(rotationAmount);
                     EditorGUILayout.PropertyField(forwardDirection);
                 }
-                EditorGUILayout.EndFoldoutHeaderGroup();
             }
         }
 
-        showReferences = EditorGUILayout.BeginFoldoutHeaderGroup(showReferences, "References");
+        showReferences = EditorGUILayout.Foldout(showReferences, "References", true);
         if (showReferences)
         {
             if ((selectedType & InteractionActions.Dialogue) != 0)
@@ -84,7 +81,7 @@ public class InteractableObjectEditor : Editor
             }
             if ((selectedType & InteractionActions.Light) != 0)
             {
-                EditorGUILayout.PropertyField(targetLight);
+                EditorGUILayout.PropertyField(targetLights, true);
             }
             if ((selectedType & InteractionActions.Door) != 0)
             {
@@ -97,11 +94,9 @@ public class InteractableObjectEditor : Editor
                 EditorGUILayout.HelpBox("หากไม่ใส่ Quest System จะค้นหาในฉากให้อัตโนมัติ", MessageType.Info);
             }
         }
-        EditorGUILayout.EndFoldoutHeaderGroup();
-
         if ((selectedType & InteractionActions.Quest) != 0)
         {
-            showQuestSettings = EditorGUILayout.BeginFoldoutHeaderGroup(showQuestSettings, "Quest Settings");
+            showQuestSettings = EditorGUILayout.Foldout(showQuestSettings, "Quest Settings", true);
             if (showQuestSettings)
             {
                 SerializedProperty actions = serializedObject.FindProperty("questActions");
@@ -119,7 +114,6 @@ public class InteractableObjectEditor : Editor
                 }
                 EditorGUILayout.HelpBox("ทำงานทุกครั้งที่กด Interact หากเลือกทั้งสองอย่าง จะรับเควสต์ก่อนส่ง Event", MessageType.Info);
             }
-            EditorGUILayout.EndFoldoutHeaderGroup();
         }
         serializedObject.ApplyModifiedProperties();
     }

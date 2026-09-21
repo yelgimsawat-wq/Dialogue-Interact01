@@ -4,10 +4,10 @@
 
 | Module | Files (under `Assets/Dialogue/EasyDialogue`) |
 | --- | --- |
-| Single Choice | `DialogueGraphView.SingleChoice.cs`, `DialogueSingleChoiceNode.cs` |
-| Multiple Choice | `DialogueGraphView.MultipleChoice.cs`, `DialogueMultipleChoiceNode.cs` |
+| Single Choice | `DialogueGraphView.SingleChoice.cs`, `DialogueSingleChoiceNode.cs`, `DialogueGraphExporter.SingleChoice.cs` |
+| Multiple Choice | `DialogueGraphView.MultipleChoice.cs`, `DialogueMultipleChoiceNode.cs`, `DialogueGraphExporter.MultipleChoice.cs` |
 
-To use Single Choice only, exclude both Multiple Choice files and their `.meta` files from the project. Restore that pair to enable Multiple Choice again. No changes to the graph core, exporter, or runtime canvas are required. Keep the existing `DialogueType` enum values for compatibility with saved data.
+To use Single Choice only, exclude the three Multiple Choice files and their `.meta` files from the project. Restore that trio to enable Multiple Choice node creation and export again. No changes to the graph core, exporter core, or runtime canvas are required. Keep the existing `DialogueType` enum values for compatibility with saved data.
 
 The optional module controls creation of new nodes in the editor. Exported Dialogue Containers retain all their choices and can still be played by `DialogueCanvas`, even without the Multiple Choice editor module. This does not add graph saving/loading; preserve your graph before changing scripts.
 

@@ -3,6 +3,8 @@ $root = Split-Path $PSScriptRoot -Parent
 $paths = @(
     'Tests/DialogueExporterRegression.cs',
     'Assets/Dialogue/DialogueInGame/DialogueGraphExporter.cs',
+    'Assets/Dialogue/DialogueInGame/DialogueGraphExporter.SingleChoice.cs',
+    'Assets/Dialogue/DialogueInGame/DialogueGraphExporter.MultipleChoice.cs',
     'Assets/Dialogue/DialogueInGame/DialogLine.cs',
     'Assets/Dialogue/DialogueInGame/DialogueContainer.cs',
     'Assets/Dialogue/Data/Save/DSChoiceSaveData.cs'

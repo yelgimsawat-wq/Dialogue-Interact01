@@ -10,7 +10,7 @@ public partial class InteractableObject
     [SerializeField] private string questTargetId;
     [SerializeField, Min(1)] private int questEventAmount = 1;
 
-    private void QuestUpdate()
+    partial void QuestUpdate()
     {
         if (questActions == QuestInteractionActions.None) return;
         if (questSystem == null) questSystem = FindFirstObjectByType<QuestSystem>();

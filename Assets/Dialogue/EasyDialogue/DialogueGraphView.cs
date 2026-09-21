@@ -57,21 +57,9 @@ namespace Unity.EasyDialogue
             RegisterMultipleChoice();
             this.AddManipulator(new ContentDragger());
             
-            this.AddManipulator(CreateGroupContextualMenu());
-
             this.AddManipulator(new SelectionDragger());
             this.AddManipulator(new RectangleSelector());
         }
-
-        private IManipulator CreateGroupContextualMenu()
-        {
-            ContextualMenuManipulator contextualMenuManipulator = new ContextualMenuManipulator(
-                menuEvent => menuEvent.menu.AppendAction("Add Group", actionEvent => AddElement(CreateGroup("DialogueGroup", actionEvent.eventInfo.localMousePosition)))
-            );
-
-            return contextualMenuManipulator;
-        }
-
 
         private IManipulator CreateNodeContextualMenu(string actionTitle, DialogueType dialogueType)
         {
@@ -86,13 +74,6 @@ namespace Unity.EasyDialogue
         {
             nodeFactories.Add(dialogueType, factory);
             this.AddManipulator(CreateNodeContextualMenu(menuLabel, dialogueType));
-        }
-
-        private DSGroup CreateGroup(string title, Vector2 localMousePosition)
-        {
-            DSGroup group = new DSGroup(title, localMousePosition);
-
-            return group;
         }
 
         public DialogueNode CreateNode(DialogueType dialogueType, Vector2 position)
