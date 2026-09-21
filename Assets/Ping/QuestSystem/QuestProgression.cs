@@ -40,6 +40,10 @@ public class QuestProgression{
         return definition.MatchesEvent(eventId, targetId);
     }
 
+    public bool MatchesObjective(string objectiveId){
+        return !string.IsNullOrWhiteSpace(objectiveId) && definition.ObjectiveId == objectiveId;
+    }
+
     public int GetCurrentAmount(){
         return currentAmount;
     }

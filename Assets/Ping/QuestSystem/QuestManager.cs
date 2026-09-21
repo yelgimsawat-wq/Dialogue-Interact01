@@ -12,6 +12,12 @@ public class QuestManager{
     public bool IsQuestCompleted(string questId) => GetQuest(questId)?.IsCompleted() == true;
     public void ReportEvent(string eventId, int amount = 1) => ProcessEvent(eventId, null, amount);
     public void ReportEvent(string eventId, string targetId, int amount = 1) => ProcessEvent(eventId, targetId, amount);
+    public bool ReportObjective(QuestSet definition, string objectiveId, int amount = 1)
+    {
+        if (definition == null || string.IsNullOrWhiteSpace(objectiveId) || amount <= 0) return false;
+        QuestInstance quest = GetQuest(definition.QuestId);
+        return quest != null && quest.ProcessObjective(objectiveId, amount);
+    }
 
     public bool AreRequirementsMet(QuestSet definition)
     {
@@ -40,7 +46,7 @@ public class QuestManager{
                 return QuestAcceptResult.InvalidObjectives;
             }
 
-            if (string.IsNullOrWhiteSpace(objective.EventId) ||
+            if ((string.IsNullOrWhiteSpace(objective.ObjectiveId) && string.IsNullOrWhiteSpace(objective.EventId)) ||
                 objective.requiredAmount <= 0)
             {
                 return QuestAcceptResult.InvalidObjectives;

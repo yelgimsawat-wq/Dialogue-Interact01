@@ -25,7 +25,6 @@ internal static class QuestEditorValidation
                 if (o == null) { yield return prefix + "Missing definition."; continue; }
                 if (string.IsNullOrWhiteSpace(o.ObjectiveId)) yield return prefix + "Objective ID is empty (legacy data remains usable).";
                 else if (!ids.Add(o.ObjectiveId)) yield return prefix + "Duplicate Objective ID.";
-                if (string.IsNullOrWhiteSpace(o.EventId)) yield return prefix + "Event ID is empty.";
                 if (o.requiredAmount <= 0) yield return prefix + "Required Amount must be greater than zero.";
             }
         }

@@ -22,6 +22,7 @@ public class InteractableObjectEditor : Editor
     private bool showRotationSettings = true;
     private bool showReferences = true;
     private bool showQuestSettings = true;
+    private bool showQuestAdvanced;
 
     private void OnEnable()
     {
@@ -102,15 +103,29 @@ public class InteractableObjectEditor : Editor
                 SerializedProperty actions = serializedObject.FindProperty("questActions");
                 DrawFlags(actions, (QuestInteractionActions)actions.intValue);
                 QuestInteractionActions selectedActions = (QuestInteractionActions)actions.intValue;
+                SerializedProperty questDefinition = serializedObject.FindProperty("questDefinition");
                 if (actions.hasMultipleDifferentValues || (selectedActions & QuestInteractionActions.AcceptQuest) != 0)
                 {
-                    EditorGUILayout.PropertyField(serializedObject.FindProperty("questDefinition"));
+                    EditorGUILayout.PropertyField(questDefinition, new GUIContent("Quest To Accept"));
                 }
                 if (actions.hasMultipleDifferentValues || (selectedActions & QuestInteractionActions.ReportEvent) != 0)
                 {
-                    EditorGUILayout.PropertyField(serializedObject.FindProperty("questEventId"));
-                    EditorGUILayout.PropertyField(serializedObject.FindProperty("questTargetId"));
+                    if (serializedObject.isEditingMultipleObjects)
+                        EditorGUILayout.HelpBox("Select one object to choose its Quest Objective.", MessageType.Info);
+                    else
+                        QuestObjectivePicker.Draw(questDefinition,
+                            serializedObject.FindProperty("questObjectiveId"),
+                            serializedObject.FindProperty("questEventId"),
+                            serializedObject.FindProperty("questTargetId"));
                     EditorGUILayout.PropertyField(serializedObject.FindProperty("questEventAmount"));
+                }
+                showQuestAdvanced = EditorGUILayout.Foldout(showQuestAdvanced, "Advanced", true);
+                if (showQuestAdvanced)
+                {
+                    EditorGUILayout.PropertyField(serializedObject.FindProperty("questSystem"), new GUIContent("Quest System Override"));
+                    EditorGUILayout.PropertyField(serializedObject.FindProperty("questObjectiveId"), new GUIContent("Objective ID"));
+                    EditorGUILayout.PropertyField(serializedObject.FindProperty("questEventId"), new GUIContent("Legacy Event ID"));
+                    EditorGUILayout.PropertyField(serializedObject.FindProperty("questTargetId"), new GUIContent("Legacy Target ID"));
                 }
                 EditorGUILayout.HelpBox("ทำงานทุกครั้งที่กด Interact หากเลือกทั้งสองอย่าง จะรับเควสต์ก่อนส่ง Event", MessageType.Info);
             }

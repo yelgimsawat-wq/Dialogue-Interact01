@@ -68,10 +68,13 @@ public class QuestSystemWindow : EditorWindow
         foreach (var sender in senders.Distinct())
         {
             var obj = new SerializedObject(sender);
+            var selectedQuest = obj.FindProperty("questDefinition").objectReferenceValue as QuestSet;
+            string objectiveId = obj.FindProperty("objectiveId").stringValue;
             string eventId = obj.FindProperty("eventId").stringValue;
             string targetId = obj.FindProperty("targetId").stringValue;
             if (obj.FindProperty("amount").intValue <= 0) Add(sender, "Event Sender amount must be greater than zero.");
-            if (string.IsNullOrWhiteSpace(eventId)) Add(sender, "Event Sender has no Event ID.");
+            if (QuestObjectivePicker.IsValid(selectedQuest, objectiveId)) continue;
+            if (string.IsNullOrWhiteSpace(eventId)) Add(sender, "Event Sender has no Objective selected.");
             else if (!objectives.Any(o => o.MatchesEvent(eventId, targetId)))
                 Add(sender, "No objective matches " + eventId + FormatTarget(targetId) + ".");
         }
@@ -81,8 +84,8 @@ public class QuestSystemWindow : EditorWindow
 
         foreach (var quest in quests.Where(q => q.Objectives != null))
             foreach (var objective in quest.Objectives.Where(o => o != null && !string.IsNullOrWhiteSpace(o.EventId)))
-                if (!senders.Any(sender => SenderMatches(sender, objective)))
-                    Add(quest, "No sender found for " + objective.EventId + FormatTarget(objective.TargetId) + ". It may be sent by code or another scene.", true);
+                if (!senders.Any(sender => SenderMatches(sender, quest, objective)))
+                    Add(quest, "No sender found for " + objective.DisplayName + ". It may be progressed by another scene.", true);
 
         if (selectedQuest == null || !quests.Contains(selectedQuest)) selectedQuest = quests.FirstOrDefault();
         Repaint();
@@ -91,9 +94,11 @@ public class QuestSystemWindow : EditorWindow
     private static string FormatTarget(string targetId)
         => string.IsNullOrWhiteSpace(targetId) ? string.Empty : " / " + targetId;
 
-    private static bool SenderMatches(QuestEventSender sender, QuestObjective_Child objective)
+    private static bool SenderMatches(QuestEventSender sender, QuestSet quest, QuestObjective_Child objective)
     {
         var obj = new SerializedObject(sender);
+        if (obj.FindProperty("questDefinition").objectReferenceValue == quest &&
+            obj.FindProperty("objectiveId").stringValue == objective.ObjectiveId) return true;
         return objective.MatchesEvent(obj.FindProperty("eventId").stringValue, obj.FindProperty("targetId").stringValue);
     }
 

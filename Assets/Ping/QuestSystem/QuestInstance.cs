@@ -57,6 +57,28 @@ public class QuestInstance
         finally { processingEvent = false; }
     }
 
+    public bool ProcessObjective(string objectiveId, int amount)
+    {
+        if (completionHandled || processingEvent || amount <= 0 || string.IsNullOrWhiteSpace(objectiveId))
+            return false;
+
+        QuestProgression matched = progressions.Find(progression => progression.MatchesObjective(objectiveId));
+        if (matched == null || matched.IsCompleted()) return false;
+
+        processingEvent = true;
+        try
+        {
+            matched.Increment(amount);
+            if (IsCompleted())
+            {
+                completionHandled = true;
+                onCompleted?.Invoke(this);
+            }
+        }
+        finally { processingEvent = false; }
+        return true;
+    }
+
     private bool completionHandled = false;
     private bool processingEvent;
     public bool IsActive => !IsCompleted();
