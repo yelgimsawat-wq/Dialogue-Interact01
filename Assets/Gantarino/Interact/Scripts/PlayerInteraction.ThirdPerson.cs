@@ -2,7 +2,7 @@ using UnityEngine;
 
 public partial class PlayerInteraction
 {
-    [SerializeField] [Range(0.1f, 5f)] [Tooltip("กำหนดรัสมีของการตรวจจับวัตถุ")]
+    [SerializeField] [Range(0.1f, 5f)] [Tooltip("Set the object detection radius.")]
     private float SphereCastRadius = 0.5f;
 
     partial void ThirdpersonHandleRaycasting()

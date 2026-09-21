@@ -18,7 +18,7 @@ public partial class InteractableObject
 
         if (!dialogueCanvas.gameObject.activeSelf)
         {
-            dialogueCanvas.ShowDialogue(dialogueContainer);
+            dialogueCanvas.ShowDialogue(dialogueContainer, gameObject);
         }
         else
         {

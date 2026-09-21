@@ -10,7 +10,7 @@ public class DialogueInteractable : MonoBehaviour, IInteractable
         
         if (canvas != null)
         {
-            canvas.ShowDialogue(Dialogue);
+            canvas.ShowDialogue(Dialogue, gameObject);
         }
     }
 

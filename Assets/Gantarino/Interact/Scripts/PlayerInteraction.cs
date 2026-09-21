@@ -12,15 +12,15 @@ public partial class PlayerInteraction : MonoBehaviour
     
     [SerializeField]
     private InteractionType InteractionType;
-    [SerializeField] [Tooltip("กำหนด Layer ของวัตถุที่สามารถตรวจจับได้")]
+    [SerializeField] [Tooltip("Define which layers can be interacted with.")]
     private LayerMask LayerMask;
-    [SerializeField] [Tooltip("นำ TextMeshProUGUI มาใส่")]
+    [SerializeField] [Tooltip("Add a TextMeshProUGUI component.")]
     private TMP_Text InteractionText;
-    [SerializeField] [Tooltip("นำตัว player มาใส่")]
+    [SerializeField] [Tooltip("Add the player object.")]
     private GameObject player;
-    [SerializeField] [Tooltip("นำกล้องหลักของ player มาใส่")]
+    [SerializeField] [Tooltip("Add the player’s main camera.")]
     private Camera mainCamera;
-    [SerializeField] [Range(0.1f, 10f)] [Tooltip("กำหนดระยะทางของการตรวจจับวัตถุ")]
+    [SerializeField] [Range(0.1f, 10f)] [Tooltip("Set the object detection range.")]
     private float Range = 3f;
     
     public InteractionType CurrentInteractionType => InteractionType;

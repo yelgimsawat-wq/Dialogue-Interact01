@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 using TMPro;
+using UnityEditor;
 
 public class DialogueCanvas : MonoBehaviour
 {
@@ -15,6 +16,8 @@ public class DialogueCanvas : MonoBehaviour
     private Transform choiceButtonContainer;
     [SerializeField]
     private PlayerInteraction playerInteraction;
+    [SerializeField]
+    private GameObject objectNames;
 
     private DialogueContainer _currentDialogue;
     private DialogLine _currentLine;
@@ -22,8 +25,6 @@ public class DialogueCanvas : MonoBehaviour
 
     public void Start()
     {
-
-
         if (playerInteraction == null)
         {
             Debug.LogError("ไม่พบ PlayerInteraction ในฉาก", this);
@@ -32,9 +33,10 @@ public class DialogueCanvas : MonoBehaviour
         Debug.Log("ใช้งาน" + playerInteraction.CurrentInteractionType);
     }
 
-    public void ShowDialogue(DialogueContainer container)
+    public void ShowDialogue(DialogueContainer container, GameObject dialogueOwner = null)
     {
         if (dialoguePanel == null) Debug.LogError("ลืมใส่ dialoguePanel ");
+        if (objectNames == null) Debug.LogError("ลืมใส่ objectNames");
         if (dialogueText == null) Debug.LogError("ลืมใส่ dialogueText ");
 
 
@@ -55,6 +57,16 @@ public class DialogueCanvas : MonoBehaviour
         }
         Debug.Log($"ชื่อโหนดเริ่มต้น: {startLine.DialogueName}");
         dialoguePanel.SetActive(true);
+        if (objectNames != null)
+        {
+            TMP_Text objectNameText = objectNames.GetComponent<TMP_Text>();
+            if (objectNameText == null) objectNameText = objectNames.GetComponentInChildren<TMP_Text>();
+            if (objectNameText != null)
+            {
+                objectNameText.text = dialogueOwner != null ? dialogueOwner.name : container.name;
+            }
+            objectNames.SetActive(true);
+        }
 
         if (playerInteraction.CurrentInteractionType == InteractionType.FirstPerson)
         {
@@ -71,6 +83,7 @@ public class DialogueCanvas : MonoBehaviour
     public void HideDialogue()
     {
         dialoguePanel.SetActive(false);
+        if (objectNames != null) objectNames.SetActive(false);
         StopAutoAdvanceIfRunning();
         ClearChoiceButtons();
         
