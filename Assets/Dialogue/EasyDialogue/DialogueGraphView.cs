@@ -28,6 +28,7 @@ namespace Unity.EasyDialogue
             AddStyles();
 
             OnElementsDeleted();
+            OnGraphViewChanged();
 
         }
 
@@ -51,6 +52,8 @@ namespace Unity.EasyDialogue
         {
             SetupZoom(ContentZoomer.DefaultMinScale, ContentZoomer.DefaultMaxScale);
             RegisterSingleChoice();
+            // Optional DLC module: this partial method is compiled away when
+            // DialogueGraphView.MultipleChoice.cs is not included.
             RegisterMultipleChoice();
             this.AddManipulator(new ContentDragger());
             
@@ -102,11 +105,24 @@ namespace Unity.EasyDialogue
             DialogueNode node = factory();
             
             node.Initialize(this, position);
+            node.DialogueName = GetUniqueDialogueName();
             node.Draw();
 
             AddUngroupedNode(node);
             
             return node;
+        }
+
+        private string GetUniqueDialogueName()
+        {
+            int number = 1;
+            string candidate;
+            do
+            {
+                candidate = "Dialogue " + number++;
+            }
+            while (ungroupNode.ContainsKey(candidate));
+            return candidate;
         }
 
 
@@ -223,9 +239,8 @@ namespace Unity.EasyDialogue
                     {
                         DialogueNode nextNode = (DialogueNode) edge.input.node;
 
-                        DSChoiceSaveData choiceData = (DSChoiceSaveData) edge.output.userData;
-
-                        choiceData.NodeID = nextNode.ID;
+                        if (edge.output.userData is DSChoiceSaveData choiceData)
+                            choiceData.NodeID = nextNode.ID;
                     }
                 }  
 
@@ -240,9 +255,8 @@ namespace Unity.EasyDialogue
                             continue;
                         }
                         Edge edge = (Edge) element;
-                        DSChoiceSaveData choiceData = (DSChoiceSaveData) edge.output.userData;
-
-                        choiceData.NodeID = "";
+                        if (edge.output.userData is DSChoiceSaveData choiceData)
+                            choiceData.NodeID = "";
                     }
                 }
                 return changes;

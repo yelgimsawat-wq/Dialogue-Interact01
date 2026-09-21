@@ -1,21 +1,19 @@
 using UnityEngine;
 
+[DisallowMultipleComponent]
+[DefaultExecutionOrder(-100)]
 public class QuestSystem : MonoBehaviour
 {
     public QuestManager Manager { get; private set; }
     
     private void Awake() {
+        QuestSystem existing = FindFirstObjectByType<QuestSystem>();
+        if (existing != null && existing != this)
+        {
+            Debug.LogError("Only one Quest System should exist in a scene.", this);
+            enabled = false;
+            return;
+        }
         Manager = new QuestManager();
-    }
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 }

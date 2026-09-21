@@ -6,7 +6,7 @@ namespace Unity.EasyDialogue
     {
         partial void RegisterMultipleChoice()
         {
-            RegisterNodeType(DialogueType.MultipleChoice, "add Node (Multiple Choice)",
+            RegisterNodeType(DialogueType.MultipleChoice, "Add Dialogue (Multiple Choice)",
                 () => new DialogueMultipleChoiceNode());
         }
     }

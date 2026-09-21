@@ -6,7 +6,7 @@ namespace Unity.EasyDialogue
     {
         partial void RegisterSingleChoice()
         {
-            RegisterNodeType(DialogueType.SingleChoice, "add Node (Single Choice)",
+            RegisterNodeType(DialogueType.SingleChoice, "Add Dialogue (Single Choice)",
                 () => new DialogueSingleChoiceNode());
         }
     }

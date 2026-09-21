@@ -6,7 +6,7 @@ public class QuestDoor : BaseDoor
     [SerializeField]
     private QuestSet targetQuest;
 
-    [SerializeField]
+    [SerializeField, HideInInspector]
     private string targetQuestId;
 
     [SerializeField]
@@ -86,6 +86,12 @@ public class QuestDoor : BaseDoor
                 }
             }
         }
+    }
+
+    private void OnValidate()
+    {
+        if (targetQuest != null && !string.IsNullOrWhiteSpace(targetQuest.QuestId))
+            targetQuestId = targetQuest.QuestId;
     }
 
     private void HandleQuestCompleted(QuestInstance completedQuest)
