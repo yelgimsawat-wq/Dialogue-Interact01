@@ -18,6 +18,7 @@ namespace DS.Elementions
         public List<DSChoiceSaveData> Choices { get; set; }
         public string Text { get; set; }
         public DialogueType DialogueType { get; set; }
+        public DSGroup Group { get; set; }
         public Port InputPort { get; private set; }
 
         protected DialogueGraphView graphView;
