@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using UnityEditor.Experimental.GraphView;
 using DS.Elementions;
+using DS.Data.Save;
 using UnityEditor;
 using UnityEngine.UIElements;
 
@@ -9,17 +10,17 @@ namespace Unity.EasyDialogue
 {
    public class DialogueGraphExporter 
    {
-        public static DialogueContainer Export(DialogueGraphView graphView, DialogueContainer target = null)  
+        public static DialogueContainer Export(DialogueGraphView graphView, DialogueContainer target = null, string defaultFileName = "New Dialogue")
         {
             if (graphView == null)
             {
                 return null;
             }
 
-            List<DialogueSingleChoiceNode> nodes = new List<DialogueSingleChoiceNode>();
+            List<DialogueNode> nodes = new List<DialogueNode>();
             graphView.graphElements.ForEach(element =>
             {
-                if (element is DialogueSingleChoiceNode node)
+                if (element is DialogueNode node)
                 {
                     nodes.Add(node);
                 }
@@ -30,26 +31,56 @@ namespace Unity.EasyDialogue
                 return null;
             }
 
-            Dictionary<DialogueSingleChoiceNode, DialogLine> nodeToLine = new Dictionary<DialogueSingleChoiceNode, DialogLine>();
-     
-            foreach (DialogueSingleChoiceNode node in nodes)
+            Dictionary<DialogueNode, DialogLine> nodeToLine = new Dictionary<DialogueNode, DialogLine>();
+            // Runtime links use names, so each exported node needs a unique key.
+            // Reserve original names before assigning suffixes to avoid collisions.
+            HashSet<string> reservedNames = new HashSet<string>();
+            HashSet<string> exportedNames = new HashSet<string>();
+            foreach (DialogueNode node in nodes)
             {
+                reservedNames.Add(node.DialogueName);
+            }
+     
+            foreach (DialogueNode node in nodes)
+            {
+                string dialogueName = node.DialogueName;
+                if (string.IsNullOrWhiteSpace(dialogueName) || !exportedNames.Add(dialogueName))
+                {
+                    string baseName = string.IsNullOrWhiteSpace(dialogueName) ? "Dialogue" : dialogueName;
+                    int suffix = 2;
+                    do
+                    {
+                        dialogueName = $"{baseName}_{suffix++}";
+                    }
+                    while (reservedNames.Contains(dialogueName) || exportedNames.Contains(dialogueName));
+
+                    exportedNames.Add(dialogueName);
+                }
+
                 DialogLine line = new DialogLine
                 {
-                    DialogueName = node.DialogueName,
+                    DialogueName = dialogueName,
                     Text = node.Text
                 };
      
                 nodeToLine[node] = line;
             } 
             
-            foreach (DialogueSingleChoiceNode node in nodes)
+            foreach (DialogueNode node in nodes)
             {
                 DialogLine line = nodeToLine[node];
 
-                foreach ((string choiceText, Port port) in node.choicesPorts)
+                foreach (VisualElement element in node.outputContainer.Children())
                 {
-                    string nextDialogueName = FindConnectedDialogueName(port);
+                    if (!(element is Port port))
+                    {
+                        continue;
+                    }
+
+                    string choiceText = port.userData is DSChoiceSaveData choice
+                        ? choice.Text
+                        : port.portName;
+                    string nextDialogueName = FindConnectedDialogueName(port, nodeToLine);
 
                     line.Choices.Add(new DialogLine.DialogChoice
                     {
@@ -59,8 +90,8 @@ namespace Unity.EasyDialogue
                 }
             }
 
-            string startDialogueName = FindStartDialogueName(nodes);
-            DialogueContainer container = target != null ? target : CreateNewContainerAsset();
+            string startDialogueName = nodeToLine[FindStartNode(nodes)].DialogueName;
+            DialogueContainer container = target != null ? target : CreateNewContainerAsset(defaultFileName);
 
             if (container == null)
             {
@@ -75,23 +106,23 @@ namespace Unity.EasyDialogue
             return container;
         }   
 
-        private static string FindConnectedDialogueName(Port outputPort)
+        private static string FindConnectedDialogueName(Port outputPort, Dictionary<DialogueNode, DialogLine> nodeToLine)
         {
             foreach (Edge edge in outputPort.connections)
             {
-                if (edge.input?.node is DialogueSingleChoiceNode targetNode)
+                if (edge.input?.node is DialogueNode targetNode && nodeToLine.TryGetValue(targetNode, out DialogLine targetLine))
                 {
-                    return targetNode.DialogueName;
+                    return targetLine.DialogueName;
                 }
             }
             return "";
         }
 
-        private static string FindStartDialogueName(List<DialogueSingleChoiceNode> nodes)
+        private static DialogueNode FindStartNode(List<DialogueNode> nodes)
         {
-            List<DialogueSingleChoiceNode> candidate = new List<DialogueSingleChoiceNode>(); 
+            List<DialogueNode> candidate = new List<DialogueNode>();
 
-            foreach (DialogueSingleChoiceNode node in nodes)
+            foreach (DialogueNode node in nodes)
             {
                 bool hasIncomingConnections = false;
                 foreach (Edge edge in node.InputPort.connections)
@@ -109,22 +140,22 @@ namespace Unity.EasyDialogue
             if (candidate.Count == 0) 
             {
                 Debug.Log("อย่าทำเป็นวงกลมโว้ยยยยยยยยย");
-                return nodes[0].DialogueName;
+                return nodes[0];
             }
             if (candidate.Count > 1)
             {
                 Debug.LogWarning("อย่ารุมเค้า เอาแค่เส้นเดียวเถอะขอร้อง");
-                return candidate[0].DialogueName;
+                return candidate[0];
             }
 
-            return candidate[0].DialogueName;
+            return candidate[0];
         }
         
-        private static DialogueContainer CreateNewContainerAsset()
+        private static DialogueContainer CreateNewContainerAsset(string defaultFileName)
         {
             string path = EditorUtility.SaveFilePanelInProject(
                 "สร้าง Dialogue Container ใหม่",
-                "New Dialogue",
+                defaultFileName,
                 "asset",
                 "เลือกตำแหน่งที่จะเซฟไฟล์ dialogue"
             );

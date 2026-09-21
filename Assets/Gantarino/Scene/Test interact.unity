@@ -607,10 +607,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bb4fa1ccea325d84d92e0c171d9286e0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractableObject
+  door: {fileID: 0}
+  doorPivot: {fileID: 0}
+  IsOpen: 0
+  IsRotatingDoor: 1
+  Speed: 1
+  RotationAmount: 90
+  ForwardDirection: 0
   dialogueCanvas: {fileID: 448135166}
-  dialogueContainer: {fileID: 11400000, guid: 2c7e327e794c04d47a58eb43c117f48c, type: 2}
-  light: {fileID: 0}
-  InteractableType: 0
+  dialogueContainer: {fileID: 11400000, guid: 38114e4de03fd8a4a8a66860425680bd, type: 2}
+  targetLight: {fileID: 0}
+  InteractableType: 2
 --- !u!65 &247453886
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -975,8 +982,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 701, y: 104}
-  m_SizeDelta: {x: 160, y: 30}
+  m_AnchoredPosition: {x: -22, y: 316}
+  m_SizeDelta: {x: 253.72, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1261841010
 CanvasRenderer:
@@ -1439,9 +1446,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bb4fa1ccea325d84d92e0c171d9286e0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractableObject
+  door: {fileID: 0}
+  doorPivot: {fileID: 0}
+  IsOpen: 0
+  IsRotatingDoor: 1
+  Speed: 1
+  RotationAmount: 90
+  ForwardDirection: 0
   dialogueCanvas: {fileID: 0}
   dialogueContainer: {fileID: 0}
-  light: {fileID: 83024406}
+  targetLight: {fileID: 0}
   InteractableType: 1
 --- !u!65 &1920717066
 BoxCollider:

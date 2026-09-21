@@ -10,8 +10,13 @@ namespace Unity.EasyDialogue
 {
     using DS.Data.Error;
 
-    public class DialogueGraphView : GraphView
+    public partial class DialogueGraphView : GraphView
     {
+        private readonly Dictionary<DialogueType, Func<DialogueNode>> nodeFactories = new Dictionary<DialogueType, Func<DialogueNode>>();
+
+        // Optional partial implementations register the node types they provide.
+        partial void RegisterSingleChoice();
+        partial void RegisterMultipleChoice();
 
         private Dictionary<string, DSNodeErrorData> ungroupNode;
         public DialogueGraphView()
@@ -41,8 +46,8 @@ namespace Unity.EasyDialogue
         private void AddManipulators()
         {
             SetupZoom(ContentZoomer.DefaultMinScale, ContentZoomer.DefaultMaxScale);
-            this.AddManipulator(CreateNodeContextualMenu("add Node (Single Choice)", DialogueType.SingleChoice));
-            this.AddManipulator(CreateNodeContextualMenu("add Node (Multiple Choice)", DialogueType.MultipleChoice));
+            RegisterSingleChoice();
+            RegisterMultipleChoice();
             this.AddManipulator(new ContentDragger());
             
             this.AddManipulator(CreateGroupContextualMenu());
@@ -70,6 +75,12 @@ namespace Unity.EasyDialogue
             return contextualMenuManipulator;
         }
 
+        private void RegisterNodeType(DialogueType dialogueType, string menuLabel, Func<DialogueNode> factory)
+        {
+            nodeFactories.Add(dialogueType, factory);
+            this.AddManipulator(CreateNodeContextualMenu(menuLabel, dialogueType));
+        }
+
         private Group CreateGroup(string title,Vector2 localMousePosition)
         {
             Group group = new Group()
@@ -84,9 +95,12 @@ namespace Unity.EasyDialogue
 
         public DialogueNode CreateNode(DialogueType dialogueType, Vector2 position)
         {
-            Type nodeType = Type.GetType($"DS.Elementions.Dialogue{dialogueType}Node");
+            if (!nodeFactories.TryGetValue(dialogueType, out Func<DialogueNode> factory))
+            {
+                throw new ArgumentException($"Dialogue node type '{dialogueType}' is not installed.", nameof(dialogueType));
+            }
 
-            DialogueNode node = (DialogueNode) Activator.CreateInstance(nodeType);
+            DialogueNode node = factory();
             
             node.Initialize(this, position);
             node.Draw();

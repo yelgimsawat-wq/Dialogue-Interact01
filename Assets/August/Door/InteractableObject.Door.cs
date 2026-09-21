@@ -5,12 +5,18 @@ public partial class InteractableObject
 {
     [SerializeField]
     private GameObject door;
+
+    [SerializeField]
+    [Tooltip("จุดบานพับ ใช้แกน Y ของ Pivot เป็นแกนหมุน หากไม่ใส่จะหมุนรอบจุดกำเนิดของ Door")]
+    private Transform doorPivot;
+
     public bool IsOpen = false;
 
     [SerializeField]
     private bool IsRotatingDoor = true;
 
     [SerializeField]
+    [Min(0.01f)]
     private float Speed = 1f;
 
     [Header("Rotation Config")]
@@ -20,15 +26,27 @@ public partial class InteractableObject
     [SerializeField]
     private float ForwardDirection = 0f;
 
-    private Vector3 StartRotation;
-    private Vector3 Forward;
-
+    private Transform doorTransform;
+    private Vector3 closedDoorPosition;
+    private Quaternion closedDoorRotation;
+    private Vector3 pivotPosition;
+    private Vector3 pivotAxis;
+    private Vector3 closedDoorRight;
+    private float currentDoorAngle;
     private Coroutine AnimationCoroutine;
 
     private void Awake()
     {
-        StartRotation = transform.rotation.eulerAngles;
-        Forward = transform.right;
+        doorTransform = door != null ? door.transform : transform;
+        closedDoorPosition = doorTransform.localPosition;
+        closedDoorRotation = doorTransform.localRotation;
+
+        Vector3 worldPivot = doorPivot != null ? doorPivot.position : doorTransform.position;
+        Vector3 worldAxis = doorPivot != null ? doorPivot.up : doorTransform.up;
+        Transform parent = doorTransform.parent;
+        pivotPosition = parent != null ? parent.InverseTransformPoint(worldPivot) : worldPivot;
+        pivotAxis = parent != null ? parent.InverseTransformDirection(worldAxis).normalized : worldAxis.normalized;
+        closedDoorRight = closedDoorRotation * Vector3.right;
     }
 
     partial void DoorUpdate()
@@ -45,73 +63,57 @@ public partial class InteractableObject
 
     partial void Open(Vector3 UserPosition)
     {
+        if (!IsRotatingDoor) return;
+
+        Transform parent = doorTransform.parent;
+        Vector3 worldPivot = parent != null ? parent.TransformPoint(pivotPosition) : pivotPosition;
+        Vector3 worldRight = parent != null ? parent.TransformDirection(closedDoorRight) : closedDoorRight;
+        float dot = Vector3.Dot(worldRight, (UserPosition - worldPivot).normalized);
+        float targetAngle = dot >= ForwardDirection ? -RotationAmount : RotationAmount;
+        IsOpen = true;
+        StartDoorRotation(targetAngle);
+    }
+
+    partial void Close()
+    {
+        if (!IsOpen || !IsRotatingDoor) return;
+
+        IsOpen = false;
+        StartDoorRotation(0f);
+    }
+
+    private void StartDoorRotation(float targetAngle)
+    {
         if (AnimationCoroutine != null)
         {
             StopCoroutine(AnimationCoroutine);
         }
 
-        if (IsRotatingDoor)
-        {
-            float dot = Vector3.Dot(Forward, (UserPosition - transform.position).normalized);
-            Debug.Log($"Dot: {dot.ToString("N3")}");
-            AnimationCoroutine = StartCoroutine(DoRotationOpen(dot));
-        }
+        AnimationCoroutine = StartCoroutine(RotateDoor(targetAngle));
     }
 
-    private IEnumerator DoRotationOpen(float ForwardAmount)
+    private IEnumerator RotateDoor(float targetAngle)
     {
-        Quaternion startRotation = transform.rotation;
-        Quaternion endRotation;
-
-        if (ForwardAmount >= ForwardDirection)
+        float startAngle = currentDoorAngle;
+        float time = 0f;
+        while (time < 1f)
         {
-            endRotation = Quaternion.Euler(new Vector3(0, startRotation.eulerAngles.y - RotationAmount, 0));
-        }
-        else
-        {
-            endRotation = Quaternion.Euler(new Vector3(0, startRotation.eulerAngles.y + RotationAmount, 0));
-        }
-
-        IsOpen = true;
-
-        float time = 0;
-        while (time < 1)
-        {
-            transform.rotation = Quaternion.Slerp(startRotation, endRotation, time);
+            time = Mathf.Min(1f, time + Time.deltaTime * Mathf.Max(0.01f, Speed));
+            ApplyDoorAngle(Mathf.Lerp(startAngle, targetAngle, time));
             yield return null;
-            time += Time.deltaTime * Speed;
         }
+
+        ApplyDoorAngle(targetAngle);
+        AnimationCoroutine = null;
     }
 
-    partial void Close()
+    private void ApplyDoorAngle(float angle)
     {
-        if (IsOpen)
-        {
-            if (AnimationCoroutine != null)
-            {
-                StopCoroutine(AnimationCoroutine);
-            }
-
-            if (IsRotatingDoor)
-            {
-                AnimationCoroutine = StartCoroutine(DoRotationClose());
-            }
-        }
-    }
-
-    private IEnumerator DoRotationClose()
-    {
-        Quaternion startRotation = transform.rotation;
-        Quaternion endRotation = Quaternion.Euler(StartRotation);
-
-        IsOpen = false;
-
-        float time = 0;
-        while (time < 1)
-        {
-            transform.rotation = Quaternion.Slerp(startRotation, endRotation, time);
-            yield return null;
-            time += Time.deltaTime * Speed;
-        }
+        currentDoorAngle = angle;
+        Quaternion rotation = Quaternion.AngleAxis(angle, pivotAxis);
+        // Keep the hinge in the parent's coordinates, even when Pivot is a child
+        // of the moving door. Re-reading it each frame would move the rotation center.
+        doorTransform.localPosition = pivotPosition + rotation * (closedDoorPosition - pivotPosition);
+        doorTransform.localRotation = rotation * closedDoorRotation;
     }
 }

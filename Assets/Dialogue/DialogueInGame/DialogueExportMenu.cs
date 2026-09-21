@@ -16,7 +16,7 @@ public static class DialogueExportMenu
             Debug.LogError("No DialogueGraphView found in the current window.");
             return;
         }
-        DialogueGraphExporter.Export(graphView);
+        window.ExportGraph();
     }
 }
 

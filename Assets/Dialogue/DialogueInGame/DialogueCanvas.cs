@@ -139,6 +139,19 @@ public class DialogueCanvas : MonoBehaviour
     {
         if (line.Choices == null) return;
 
+        // Containers without a layout stack every prefab at the same position.
+        // Keep any layout configured in the scene; otherwise provide a vertical list.
+        if (choiceButtonContainer.GetComponent<LayoutGroup>() == null)
+        {
+            VerticalLayoutGroup layout = choiceButtonContainer.gameObject.AddComponent<VerticalLayoutGroup>();
+            layout.childAlignment = TextAnchor.UpperCenter;
+            layout.spacing = 8f;
+            layout.childControlWidth = false;
+            layout.childControlHeight = false;
+            layout.childForceExpandWidth = false;
+            layout.childForceExpandHeight = false;
+        }
+
         for (int i = 0; i < line.Choices.Count; i++)
         {  
             int choiceIndex = i;
@@ -150,6 +163,11 @@ public class DialogueCanvas : MonoBehaviour
             {
                 buttonText.text = line.Choices[choiceIndex].ChoiceText; // แก้จาก .Text เป็น .ChoiceText ตาม DialogLine.cs
             }
+        }
+
+        if (choiceButtonContainer is RectTransform rectTransform)
+        {
+            LayoutRebuilder.ForceRebuildLayoutImmediate(rectTransform);
         }
     }
 
@@ -188,7 +206,11 @@ public class DialogueCanvas : MonoBehaviour
     {
         for (int i = choiceButtonContainer.childCount - 1; i >= 0; i--)
         {
-            Destroy(choiceButtonContainer.GetChild(i).gameObject);
+            GameObject oldButton = choiceButtonContainer.GetChild(i).gameObject;
+            // Destroy is deferred until the end of the frame; exclude old buttons
+            // from layout and input before rebuilding the next set of choices.
+            oldButton.SetActive(false);
+            Destroy(oldButton);
         }
     }
 }

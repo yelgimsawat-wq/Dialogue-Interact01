@@ -74,7 +74,7 @@ namespace DS.Elementions
             nameContainer.Add(dialogueNameTextField);
             titleContainer.Add(nameContainer);
 
-            Port InputPort = this.CreatePort("Dialogue Connection", Orientation.Horizontal, Direction.Input, Port.Capacity.Multi);
+            InputPort = this.CreatePort("Dialogue Connection", Orientation.Horizontal, Direction.Input, Port.Capacity.Multi);
 
             inputContainer.Add(InputPort);
 
