@@ -64,7 +64,9 @@ namespace Unity.EasyDialogue
         private IManipulator CreateNodeContextualMenu(string actionTitle, DialogueType dialogueType)
         {
             ContextualMenuManipulator contextualMenuManipulator = new ContextualMenuManipulator(
-                menuEvent => menuEvent.menu.AppendAction(actionTitle, actionEvent => AddElement(CreateNode(dialogueType, actionEvent.eventInfo.localMousePosition)))
+                menuEvent => menuEvent.menu.AppendAction(actionTitle, actionEvent =>
+                    AddElement(CreateNode(dialogueType,
+                        contentViewContainer.WorldToLocal(worldTransform.MultiplyPoint(actionEvent.eventInfo.localMousePosition)))))
             );
 
             return contextualMenuManipulator;
@@ -197,16 +199,18 @@ namespace Unity.EasyDialogue
 
         private void AddStyles()
         {
-            StyleSheet graphViewStyleSheet = (StyleSheet) EditorGUIUtility.Load(
-                "Assets/Dialogue/EditorDefaulrResources/DialogueSystem/DialogueGraphviewStyles.uss");
-            StyleSheet nodeStyleSheet = (StyleSheet) EditorGUIUtility.Load(
-                "Assets/Dialogue/EditorDefaulrResources/DialogueSystem/DialogueNodeStyles.uss");
-            StyleSheet variablesStyleSheet = (StyleSheet)EditorGUIUtility.Load(
-                "Assets/Dialogue/EditorDefaulrResources/DialogueSystem/DialogueVariables.uss");
+            string[] stylePaths =
+            {
+                "Assets/Dialogue/EditorDefaulrResources/DialogueSystem/DialogueVariables.uss",
+                "Assets/Dialogue/EditorDefaulrResources/DialogueSystem/DialogueGraphviewStyles.uss",
+                "Assets/Dialogue/EditorDefaulrResources/DialogueSystem/DialogueNodeStyles.uss"
+            };
 
-            styleSheets.Add(variablesStyleSheet);
-            styleSheets.Add(graphViewStyleSheet);
-            styleSheets.Add(nodeStyleSheet);
+            foreach (string path in stylePaths)
+            {
+                StyleSheet styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>(path);
+                if (styleSheet != null) styleSheets.Add(styleSheet);
+            }
             
 
         }

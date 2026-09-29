@@ -11,16 +11,18 @@ public partial class PlayerInteraction
         return;
         }
         
-        if (!hit.collider.TryGetComponent(out IInteractable interactable))
+        IInteractable[] interactables = GetInteractables(hit.collider);
+        if (interactables.Length == 0)
         {
             InteractionText.text = "";
             return;
         }
 
-        InteractionText.text = interactable.InteractionText;
+        InteractionText.text = interactables[0].InteractionText;
         if (Input.GetKeyDown(KeyCode.E))
         {
-            interactable.Interact();
+            foreach (IInteractable interactable in interactables)
+                interactable.Interact();
         }
     }
 }

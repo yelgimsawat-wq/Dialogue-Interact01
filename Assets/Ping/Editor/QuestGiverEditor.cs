@@ -27,7 +27,6 @@ public class QuestGiverEditor : Editor
         {
             QuestEditorValidation.Field(serializedObject, "questSystem", "Quest System Override");
             QuestEditorValidation.Field(serializedObject, "onQuestResult", "On Quest Result");
-            QuestEditorValidation.Field(serializedObject, "onAccepted", "On Accepted");
         }
         serializedObject.ApplyModifiedProperties();
 

@@ -21,8 +21,6 @@ public class InteractableObjectEditor : Editor
     private bool showInteractionSettings = true;
     private bool showRotationSettings = true;
     private bool showReferences = true;
-    private bool showQuestSettings = true;
-    private bool showQuestAdvanced;
 
     private void OnEnable()
     {
@@ -42,7 +40,21 @@ public class InteractableObjectEditor : Editor
     public override void OnInspectorGUI()
     {
         serializedObject.Update();
-        DrawFlags(interactableType, (InteractionActions)interactableType.intValue);
+        bool hasDialogueSupport = dialogueContainer != null && dialogueCanvas != null;
+        if (!hasDialogueSupport)
+        {
+            interactableType.intValue &= ~(int)InteractionActions.Dialogue;
+        }
+        bool hasLightScript = targetLights != null;
+        bool hasDoorScript = door != null || isOpen != null || isRotatingDoor != null || speed != null || rotationAmount != null || forwardDirection != null;
+        if (!hasLightScript) interactableType.intValue &= ~(int)InteractionActions.Light;
+        if (!hasDoorScript) interactableType.intValue &= ~(int)InteractionActions.Door;
+
+        InteractionActions availableActions = InteractionActions.None;
+        if (hasDialogueSupport) availableActions |= InteractionActions.Dialogue;
+        if (hasLightScript) availableActions |= InteractionActions.Light;
+        if (hasDoorScript) availableActions |= InteractionActions.Door;
+        DrawFlags(interactableType, (InteractionActions)interactableType.intValue, availableActions);
 
         if (interactableType.hasMultipleDifferentValues)
         {
@@ -57,17 +69,17 @@ public class InteractableObjectEditor : Editor
             showInteractionSettings = EditorGUILayout.Foldout(showInteractionSettings, "Interaction Settings", true);
             if (showInteractionSettings)
             {
-                EditorGUILayout.PropertyField(isOpen);
-                EditorGUILayout.PropertyField(isRotatingDoor);
-                EditorGUILayout.PropertyField(speed);
+                DrawPropertyIfPresent(isOpen);
+                DrawPropertyIfPresent(isRotatingDoor);
+                DrawPropertyIfPresent(speed);
             }
-            if (isRotatingDoor.boolValue || isRotatingDoor.hasMultipleDifferentValues)
+            if (isRotatingDoor != null && (isRotatingDoor.boolValue || isRotatingDoor.hasMultipleDifferentValues))
             {
                 showRotationSettings = EditorGUILayout.Foldout(showRotationSettings, "Rotation Settings", true);
                 if (showRotationSettings)
                 {
-                    EditorGUILayout.PropertyField(rotationAmount);
-                    EditorGUILayout.PropertyField(forwardDirection);
+                    DrawPropertyIfPresent(rotationAmount);
+                    DrawPropertyIfPresent(forwardDirection);
                 }
             }
         }
@@ -77,70 +89,48 @@ public class InteractableObjectEditor : Editor
         {
             if ((selectedType & InteractionActions.Dialogue) != 0)
             {
-                EditorGUILayout.PropertyField(dialogueCanvas);
-                EditorGUILayout.PropertyField(dialogueContainer);
+                DrawPropertyIfPresent(dialogueContainer, label: new GUIContent("Dialogue Script"));
+                DrawPropertyIfPresent(dialogueCanvas);
             }
             if ((selectedType & InteractionActions.Light) != 0)
             {
-                EditorGUILayout.PropertyField(targetLights, true);
+                DrawPropertyIfPresent(targetLights, includeChildren: true);
             }
             if ((selectedType & InteractionActions.Door) != 0)
             {
-                EditorGUILayout.PropertyField(door);
-                EditorGUILayout.PropertyField(doorPivot);
-            }
-            if ((selectedType & InteractionActions.Quest) != 0)
-            {
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("questSystem"));
-                EditorGUILayout.HelpBox("หากไม่ใส่ Quest System จะค้นหาในฉากให้อัตโนมัติ", MessageType.Info);
-            }
-        }
-        if ((selectedType & InteractionActions.Quest) != 0)
-        {
-            showQuestSettings = EditorGUILayout.Foldout(showQuestSettings, "Quest Settings", true);
-            if (showQuestSettings)
-            {
-                SerializedProperty actions = serializedObject.FindProperty("questActions");
-                DrawFlags(actions, (QuestInteractionActions)actions.intValue);
-                QuestInteractionActions selectedActions = (QuestInteractionActions)actions.intValue;
-                SerializedProperty questDefinition = serializedObject.FindProperty("questDefinition");
-                if (actions.hasMultipleDifferentValues || (selectedActions & QuestInteractionActions.AcceptQuest) != 0)
-                {
-                    EditorGUILayout.PropertyField(questDefinition, new GUIContent("Quest To Accept"));
-                }
-                if (actions.hasMultipleDifferentValues || (selectedActions & QuestInteractionActions.ReportEvent) != 0)
-                {
-                    if (serializedObject.isEditingMultipleObjects)
-                        EditorGUILayout.HelpBox("Select one object to choose its Quest Objective.", MessageType.Info);
-                    else
-                        QuestObjectivePicker.Draw(questDefinition,
-                            serializedObject.FindProperty("questObjectiveId"),
-                            serializedObject.FindProperty("questEventId"),
-                            serializedObject.FindProperty("questTargetId"));
-                    EditorGUILayout.PropertyField(serializedObject.FindProperty("questEventAmount"));
-                }
-                showQuestAdvanced = EditorGUILayout.Foldout(showQuestAdvanced, "Advanced", true);
-                if (showQuestAdvanced)
-                {
-                    EditorGUILayout.PropertyField(serializedObject.FindProperty("questSystem"), new GUIContent("Quest System Override"));
-                    EditorGUILayout.PropertyField(serializedObject.FindProperty("questObjectiveId"), new GUIContent("Objective ID"));
-                    EditorGUILayout.PropertyField(serializedObject.FindProperty("questEventId"), new GUIContent("Legacy Event ID"));
-                    EditorGUILayout.PropertyField(serializedObject.FindProperty("questTargetId"), new GUIContent("Legacy Target ID"));
-                }
-                EditorGUILayout.HelpBox("ทำงานทุกครั้งที่กด Interact หากเลือกทั้งสองอย่าง จะรับเควสต์ก่อนส่ง Event", MessageType.Info);
+                DrawPropertyIfPresent(door);
+                DrawPropertyIfPresent(doorPivot);
             }
         }
         serializedObject.ApplyModifiedProperties();
     }
 
-    private static void DrawFlags(SerializedProperty property, Enum value)
+    private static void DrawPropertyIfPresent(SerializedProperty property, bool includeChildren = false, GUIContent label = null)
     {
+        if (property != null)
+        {
+            if (label != null)
+            {
+                EditorGUILayout.PropertyField(property, label, includeChildren);
+            }
+            else
+            {
+                EditorGUILayout.PropertyField(property, includeChildren);
+            }
+        }
+    }
+
+    private static void DrawFlags(SerializedProperty property, Enum value, InteractionActions availableActions)
+    {
+        if (availableActions == InteractionActions.None) return;
+
         EditorGUILayout.LabelField(property.displayName, EditorStyles.boldLabel);
         EditorGUI.indentLevel++;
         foreach (Enum option in Enum.GetValues(value.GetType()))
         {
             int flag = Convert.ToInt32(option);
             if (flag == 0 || (flag & (flag - 1)) != 0) continue;
+            if ((availableActions & (InteractionActions)flag) == 0) continue;
 
             bool enabled = (property.intValue & flag) != 0;
             bool mixed = false;

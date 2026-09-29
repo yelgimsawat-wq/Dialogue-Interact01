@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 using TMPro;
-using UnityEditor;
+using UnityEngine.Events;
 
 public class DialogueCanvas : MonoBehaviour
 {
@@ -150,7 +150,11 @@ public class DialogueCanvas : MonoBehaviour
 
     private void CreateChoiceButtons(DialogLine line)
     {
-        if (line.Choices == null) return;
+        if (line.Choices == null || line.Choices.Count == 0)
+        {
+            CreateButton("Continue", () => AdvanceTo(line.NextDialogueName));
+            return;
+        }
 
         // Containers without a layout stack every prefab at the same position.
         // Keep any layout configured in the scene; otherwise provide a vertical list.
@@ -184,6 +188,14 @@ public class DialogueCanvas : MonoBehaviour
         }
     }
 
+    private void CreateButton(string text, UnityAction onClick)
+    {
+        Button button = Instantiate(choiceButtonPrefab, choiceButtonContainer);
+        button.onClick.AddListener(onClick);
+        TMP_Text buttonText = button.GetComponentInChildren<TMP_Text>();
+        if (buttonText != null) buttonText.text = text;
+    }
+
     private void OnChoiceSelected(int choiceIndex)
     {
         // if (_currentLine == null || _currentDialogue == null) return;
@@ -198,15 +210,19 @@ public class DialogueCanvas : MonoBehaviour
             return;
         }
 
-        DialogLine.DialogChoice selectedChoice = _currentLine.Choices[choiceIndex];
+        if (_currentLine.Choices == null || choiceIndex < 0 || choiceIndex >= _currentLine.Choices.Count) return;
+        AdvanceTo(_currentLine.Choices[choiceIndex].NextDialogueName);
+    }
 
-        if (string.IsNullOrEmpty(selectedChoice.NextDialogueName))
+    private void AdvanceTo(string dialogueName)
+    {
+        if (string.IsNullOrEmpty(dialogueName))
         {
             HideDialogue();
             return;
         }
 
-        DialogLine nextLine = _currentDialogue.GetLineByName(selectedChoice.NextDialogueName);
+        DialogLine nextLine = _currentDialogue.GetLineByName(dialogueName);
         if (nextLine == null)
         {
             HideDialogue();

@@ -14,16 +14,7 @@ public enum InteractionActions
     None = 0,
     Dialogue = 1,
     Light = 2,
-    Door = 4,
-    Quest = 8,
-}
-
-[Flags]
-public enum QuestInteractionActions
-{
-    None = 0,
-    AcceptQuest = 1,
-    ReportEvent = 2,
+    Door = 4
 }
 
 public partial class InteractableObject : MonoBehaviour, IInteractable, ISerializationCallbackReceiver
@@ -53,7 +44,6 @@ public partial class InteractableObject : MonoBehaviour, IInteractable, ISeriali
     {
         MigrateInteractionTypes();
         InteractionActions actions = interactionTypes;
-        if ((actions & InteractionActions.Quest) != 0) QuestUpdate();
         if ((actions & InteractionActions.Dialogue) != 0) DialogueUpdate();
         if ((actions & InteractionActions.Light) != 0) LightUpdate();
         if ((actions & InteractionActions.Door) != 0) DoorUpdate();
@@ -62,7 +52,6 @@ public partial class InteractableObject : MonoBehaviour, IInteractable, ISeriali
     partial void LightUpdate();
     partial void DialogueUpdate();
     partial void DoorUpdate();
-    partial void QuestUpdate();
     partial void Open(Vector3 userPosition);
     partial void Close();
 }

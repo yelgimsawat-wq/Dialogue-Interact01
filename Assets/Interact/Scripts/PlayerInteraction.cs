@@ -52,6 +52,16 @@ public partial class PlayerInteraction : MonoBehaviour
         }
     }
 
+    private static IInteractable[] GetInteractables(Collider hitCollider)
+    {
+        var components = hitCollider.GetComponents<MonoBehaviour>();
+        var interactables = new System.Collections.Generic.List<IInteractable>();
+        foreach (MonoBehaviour component in components)
+            if (component is IInteractable interactable)
+                interactables.Add(interactable);
+        return interactables.ToArray();
+    }
+
     partial void FirstpersonHandleRaycasting();
     partial void ThirdpersonHandleRaycasting();
     partial void OnDrawGizmosSelected();
