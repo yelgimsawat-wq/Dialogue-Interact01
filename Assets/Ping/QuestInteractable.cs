@@ -7,7 +7,11 @@ public enum QuestInteractionActions
     ReportEvent = 2
 }
 
-/// <summary>Independent quest interaction component, usable alone or beside other interactables.</summary>
+/// <summary>
+/// Legacy: superseded by <see cref="QuestGiver"/> (accept) and <see cref="QuestEventSender"/> set to
+/// "Player presses E" (report). Kept so existing objects keep working; its Inspector offers a one-click convert.
+/// </summary>
+[AddComponentMenu("")]
 public class QuestInteractable : MonoBehaviour, IInteractable
 {
     [SerializeField] private QuestSystem questSystem;
@@ -23,8 +27,8 @@ public class QuestInteractable : MonoBehaviour, IInteractable
     public void Interact()
     {
         if (action == QuestInteractionActions.None) return;
-        if (questSystem == null) questSystem = FindFirstObjectByType<QuestSystem>();
-        if (questSystem == null || questSystem.Manager == null)
+        questSystem = QuestSystem.Resolve(questSystem);
+        if (questSystem == null)
         {
             Debug.LogWarning("No ready Quest System was found in the scene.", this);
             return;

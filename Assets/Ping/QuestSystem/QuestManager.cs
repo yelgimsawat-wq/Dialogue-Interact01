@@ -10,13 +10,35 @@ public class QuestManager{
     public QuestAcceptResult TryAcceptQuest(QuestSet definition) => AcceptQuest(definition);
     public QuestInstance GetQuestInstance(string questId) => GetQuest(questId);
     public bool IsQuestCompleted(string questId) => GetQuest(questId)?.IsCompleted() == true;
-    public void ReportEvent(string eventId, int amount = 1) => ProcessEvent(eventId, null, amount);
-    public void ReportEvent(string eventId, string targetId, int amount = 1) => ProcessEvent(eventId, targetId, amount);
+    public bool ReportEvent(string eventId, int amount = 1) => ProcessEvent(eventId, null, amount);
+    public bool ReportEvent(string eventId, string targetId, int amount = 1) => ProcessEvent(eventId, targetId, amount);
     public bool ReportObjective(QuestSet definition, string objectiveId, int amount = 1)
+        => definition != null && ReportObjective(definition.QuestId, objectiveId, amount);
+
+    public bool ReportObjective(string questId, string objectiveId, int amount = 1)
     {
-        if (definition == null || string.IsNullOrWhiteSpace(objectiveId) || amount <= 0) return false;
-        QuestInstance quest = GetQuest(definition.QuestId);
+        if (string.IsNullOrWhiteSpace(questId) || string.IsNullOrWhiteSpace(objectiveId) || amount <= 0) return false;
+        QuestInstance quest = GetQuest(questId);
         return quest != null && quest.ProcessObjective(objectiveId, amount);
+    }
+
+    /// <summary>True when the quest is accepted and the objective still needs progress.</summary>
+    public bool CanProgress(QuestSet definition, string objectiveId)
+        => definition != null && GetQuest(definition.QuestId)?.CanProgress(objectiveId) == true;
+
+    public bool CanProgressEvent(string eventId, string targetId)
+    {
+        foreach (QuestInstance quest in quests)
+            if (quest.CanProgressEvent(eventId, targetId)) return true;
+        return false;
+    }
+
+    public QuestState GetState(QuestSet definition)
+    {
+        if (definition == null) return QuestState.Locked;
+        QuestInstance quest = GetQuest(definition.QuestId);
+        if (quest != null) return quest.IsCompleted() ? QuestState.Completed : QuestState.Active;
+        return AreRequirementsMet(definition) ? QuestState.Available : QuestState.Locked;
     }
 
     public bool AreRequirementsMet(QuestSet definition)
@@ -68,12 +90,14 @@ public class QuestManager{
         return QuestAcceptResult.Success;
     }
 
-    public void ProcessEvent(string eventId, string targetId, int amount){
-        if (string.IsNullOrWhiteSpace(eventId) || amount <= 0) return;
+    /// <returns>True when any accepted quest progressed.</returns>
+    public bool ProcessEvent(string eventId, string targetId, int amount){
+        if (string.IsNullOrWhiteSpace(eventId) || amount <= 0) return false;
+        bool progressed = false;
         foreach(QuestInstance quest in quests.ToArray()){
-            quest.ProcessEvent(eventId, targetId, amount);
+            progressed |= quest.ProcessEvent(eventId, targetId, amount);
         }
-        
+        return progressed;
     }
 
     public QuestInstance GetQuest(string questId){

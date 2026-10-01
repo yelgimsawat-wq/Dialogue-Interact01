@@ -56,6 +56,8 @@ public class QuestProgression{
         return definition.DisplayName;
     }
 
+    public QuestObjective_Child Objective => definition;
+
     public event Action<QuestProgression> onProgressChanged;
     
 

@@ -1,5 +1,6 @@
 using UnityEngine;
 
+[AddComponentMenu("Quest/Quest Door")]
 public class QuestDoor : BaseDoor
 {
     [Header("Quest Integration")]
@@ -65,12 +66,9 @@ public class QuestDoor : BaseDoor
 
     private void InitializeQuestListener()
     {
-        if (questSystem == null)
-        {
-            questSystem = FindFirstObjectByType<QuestSystem>();
-        }
+        questSystem = QuestSystem.Resolve(questSystem);
 
-        if (questSystem != null && questSystem.Manager != null)
+        if (questSystem != null)
         {
             questSystem.Manager.onQuestCompleted -= HandleQuestCompleted;
             questSystem.Manager.onQuestCompleted += HandleQuestCompleted;

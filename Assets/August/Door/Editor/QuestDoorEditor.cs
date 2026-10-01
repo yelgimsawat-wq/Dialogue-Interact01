@@ -21,8 +21,7 @@ public class QuestDoorEditor : Editor
         EditorGUILayout.PropertyField(serializedObject.FindProperty("autoOpenOnComplete"), new GUIContent("Open When Completed"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("lockedPrompt"), new GUIContent("Locked Message"));
 
-        if (quest.objectReferenceValue == null)
-            EditorGUILayout.HelpBox("Assign a Quest Set. The door stays locked until that quest is completed.", MessageType.Warning);
+        foreach (QuestIssue issue in QuestEditorChecks.Door((QuestDoor)target)) QuestEditorUI.Issue(issue);
 
         EditorGUILayout.Space(6f);
         EditorGUILayout.LabelField("Runtime", EditorStyles.boldLabel);
@@ -36,6 +35,8 @@ public class QuestDoorEditor : Editor
             EditorGUILayout.Space(6f);
             using (new EditorGUI.DisabledScope(true))
                 EditorGUILayout.Toggle("Currently Unlocked", ((QuestDoor)target).IsUnlocked);
+            using (new EditorGUI.DisabledScope(((QuestDoor)target).IsUnlocked))
+                if (GUILayout.Button("Unlock now (test)")) ((QuestDoor)target).UnlockDoor();
         }
     }
 }

@@ -7,27 +7,28 @@ public class QuestInteractableEditor : Editor
     public override void OnInspectorGUI()
     {
         serializedObject.Update();
-        SerializedProperty system = serializedObject.FindProperty("questSystem");
+        var legacy = (QuestInteractable)target;
         SerializedProperty action = serializedObject.FindProperty("action");
         SerializedProperty quest = serializedObject.FindProperty("questDefinition");
-        SerializedProperty objective = serializedObject.FindProperty("objectiveId");
-        SerializedProperty eventId = serializedObject.FindProperty("eventId");
-        SerializedProperty targetId = serializedObject.FindProperty("targetId");
-        SerializedProperty amount = serializedObject.FindProperty("amount");
 
-        EditorGUILayout.PropertyField(system, new GUIContent("Quest System (optional)"));
+        QuestEditorUI.Header("Quest Interactable (old)", "Replaced by Quest Giver and Quest Event Sender",
+            EditorGUIUtility.IconContent("console.infoicon").image);
+        foreach (QuestIssue issue in QuestEditorChecks.Legacy(legacy)) QuestEditorUI.Issue(issue);
+
+        QuestEditorUI.Section("Current settings");
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("questSystem"), new GUIContent("Quest System (optional)"));
         EditorGUILayout.PropertyField(action, new GUIContent("Action"));
-        QuestInteractionActions selected = (QuestInteractionActions)action.enumValueIndex;
+        var selected = (QuestInteractionActions)action.intValue;
         if (selected == QuestInteractionActions.AcceptQuest)
+        {
             EditorGUILayout.PropertyField(quest, new GUIContent("Quest To Accept"));
+        }
         else if (selected == QuestInteractionActions.ReportEvent)
         {
-            EditorGUILayout.PropertyField(quest, new GUIContent("Quest Set"));
-            QuestObjectivePicker.Draw(quest, objective, eventId, targetId);
-            EditorGUILayout.PropertyField(amount);
-            EditorGUILayout.HelpBox("The quest must be active before an objective can progress.", MessageType.Info);
+            QuestObjectivePicker.Draw(quest, serializedObject.FindProperty("objectiveId"),
+                serializedObject.FindProperty("eventId"), serializedObject.FindProperty("targetId"));
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("amount"));
         }
-
         serializedObject.ApplyModifiedProperties();
     }
 }

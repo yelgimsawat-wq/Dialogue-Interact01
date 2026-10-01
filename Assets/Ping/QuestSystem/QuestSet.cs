@@ -21,6 +21,14 @@ public class QuestSet : ScriptableObject
     [Tooltip("Optional: all these quests must be completed before accepting this quest.")]
     public List<QuestSet> RequiredQuests = new List<QuestSet>();
 
+    /// <summary>Display Name, or the asset name when none is set.</summary>
+    public string Title => string.IsNullOrWhiteSpace(DisplayName) ? name : DisplayName;
+
+    public QuestObjective_Child FindObjective(string objectiveId)
+        => string.IsNullOrWhiteSpace(objectiveId) || Objectives == null
+            ? null
+            : Objectives.Find(objective => objective != null && objective.ObjectiveId == objectiveId);
+
     private void OnValidate()
     {
         if (string.IsNullOrWhiteSpace(QuestId))

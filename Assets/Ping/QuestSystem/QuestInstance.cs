@@ -35,17 +35,20 @@ public class QuestInstance
         return true;
     }
 
-    public void ProcessEvent(string eventId, string targetId, int amount){
-        
+    /// <returns>True when at least one objective progressed.</returns>
+    public bool ProcessEvent(string eventId, string targetId, int amount){
+
         if(completionHandled || processingEvent || amount <= 0 || string.IsNullOrWhiteSpace(eventId)){
-            return;
+            return false;
         }
 
+        bool progressed = false;
         processingEvent = true;
         try {
         foreach(var progression in progressions){
             if(!progression.IsCompleted() && progression.MatchesEvent(eventId, targetId)){
                 progression.Increment(amount);
+                progressed = true;
             }
         }
 
@@ -55,7 +58,22 @@ public class QuestInstance
         }
         }
         finally { processingEvent = false; }
+        return progressed;
     }
+
+    public QuestProgression FindProgression(string objectiveId)
+        => progressions.Find(progression => progression.MatchesObjective(objectiveId));
+
+    /// <summary>True when the objective exists and still needs progress.</summary>
+    public bool CanProgress(string objectiveId)
+    {
+        QuestProgression progression = FindProgression(objectiveId);
+        return !completionHandled && progression != null && !progression.IsCompleted();
+    }
+
+    public bool CanProgressEvent(string eventId, string targetId)
+        => !completionHandled && !string.IsNullOrWhiteSpace(eventId) &&
+           progressions.Exists(progression => !progression.IsCompleted() && progression.MatchesEvent(eventId, targetId));
 
     public bool ProcessObjective(string objectiveId, int amount)
     {

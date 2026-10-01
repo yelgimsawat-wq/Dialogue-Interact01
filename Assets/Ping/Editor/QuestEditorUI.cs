@@ -63,6 +63,62 @@ internal static class QuestEditorUI
         GUI.Label(new Rect(rect.x + 7f, rect.y + 4f, rect.width - 14f, rect.height - 8f), content, EditorStyles.wordWrappedMiniLabel);
     }
 
+    /// <summary>Draws an issue with its fix button. Returns true when the fix was clicked (it runs after this GUI pass).</summary>
+    internal static bool Issue(QuestIssue issue, bool showContext = false)
+    {
+        if (showContext)
+        {
+            string label = issue.Context == null ? "Missing object"
+                : issue.Context is Component component
+                    ? component.gameObject.name + "  ·  " + ObjectNames.NicifyVariableName(component.GetType().Name)
+                    : issue.Context.name;
+            if (GUILayout.Button(label, EditorStyles.linkLabel)) QuestEditorAutomation.Ping(issue.Context);
+        }
+
+        EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.HelpBox(issue.Message, issue.Advisory ? MessageType.Info : MessageType.Warning);
+        bool clicked = issue.Fix != null &&
+                       GUILayout.Button(issue.FixLabel, GUILayout.ExpandWidth(false), GUILayout.MinWidth(84f), GUILayout.Height(38f));
+        EditorGUILayout.EndHorizontal();
+        if (clicked) RunLater(issue);
+        return clicked;
+    }
+
+    /// <summary>Applies the fix outside the current GUI pass so adding components cannot break the layout.</summary>
+    internal static void RunLater(QuestIssue issue)
+    {
+        EditorApplication.delayCall += () =>
+        {
+            if (!ReferenceEquals(issue.Context, null) && issue.Context == null) return; // destroyed meanwhile
+            issue.Fix();
+        };
+    }
+
+    internal static void TextWithPlaceholder(SerializedProperty property, GUIContent label, string placeholder)
+    {
+        EditorGUILayout.PropertyField(property, label);
+        if (!string.IsNullOrEmpty(property.stringValue)) return;
+        Rect rect = GUILayoutUtility.GetLastRect();
+        rect.xMin += EditorGUIUtility.labelWidth + 4f;
+        var style = new GUIStyle(EditorStyles.label)
+        {
+            fontStyle = FontStyle.Italic,
+            normal = { textColor = new Color(0.5f, 0.5f, 0.5f) }
+        };
+        GUI.Label(rect, placeholder, style);
+    }
+
+    internal static Color StateColor(QuestState state)
+    {
+        switch (state)
+        {
+            case QuestState.Active: return Accent;
+            case QuestState.Completed: return Success;
+            case QuestState.Available: return Warning;
+            default: return new Color(0.55f, 0.55f, 0.55f);
+        }
+    }
+
     internal static GUIStyle Pill(Color color)
     {
         return new GUIStyle(EditorStyles.miniBoldLabel)

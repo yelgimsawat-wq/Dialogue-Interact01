@@ -37,11 +37,12 @@ public class QuestSetEditor : Editor
     {
         serializedObject.Update();
         var quest = (QuestSet)target;
-        var problems = QuestEditorValidation.Check(quest, QuestEditorValidation.FindQuests()).ToList();
+        var problems = QuestEditorValidation.Issues(quest, QuestEditorValidation.FindQuests()).ToList();
         QuestEditorUI.Header(string.IsNullOrWhiteSpace(quest.DisplayName) ? "New Quest" : quest.DisplayName,
             "IDs are managed automatically",
             EditorGUIUtility.IconContent("ScriptableObject Icon").image);
         QuestEditorUI.Status(problems.Count, "Quest is ready");
+        if (GUILayout.Button("Open in Quest System window (who gives it, what progresses it)")) QuestSystemWindow.Open(quest);
 
         QuestEditorUI.Section("Quest details");
         QuestEditorValidation.Field(serializedObject, "DisplayName", "Quest Name");
@@ -66,7 +67,7 @@ public class QuestSetEditor : Editor
         if (problems.Count > 0)
         {
             QuestEditorUI.Section("Validation");
-            foreach (var message in problems) QuestEditorUI.CompactWarning(message);
+            foreach (QuestIssue issue in problems) QuestEditorUI.Issue(issue);
         }
     }
 
